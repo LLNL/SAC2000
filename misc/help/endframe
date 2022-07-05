@@ -1,0 +1,20 @@
+
+SAC Command Reference Manual                                 ENDFRAME
+
+SUMMARY:
+Resumes automatic new frame actions between plots.
+
+SYNTAX:
+ENDFRAME
+
+ALTERNATE FORMS:
+ENDFR is an obsolete but allowable form of this command.
+
+DESCRIPTION:
+See the BEGINFRAME documentation.
+
+SEE COMMANDS:
+BEGINFRAME
+
+LATEST REVISION:
+May 15, 1987 (Version 10.2)

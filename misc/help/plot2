@@ -1,0 +1,74 @@
+
+SAC Command Reference Manual                                    PLOT2
+
+SUMMARY:
+Generates a multi-trace single-window (overlay) plot.
+
+SYNTAX:
+PLOT2 {ABSOLUTE|RELATIVE} {PRINT {pname} }
+
+INPUT:
+      ABSOLUTE  :  Plot files treating time as an absolute.  Files with
+          different begin times will be shifted relative to the first file.  
+
+      RELATIVE  :  Plot each file relative to it's own begin time.
+
+      PRINT {pname}  :  Prints the resulting plot to the printer named in
+           pname, or to the default printer if pname is not used.  (This
+           makes use of the SGF capability.)
+
+
+DEFAULT VALUES:
+PLOT2 ABSOLUTE
+
+DESCRIPTION:
+All files in the data file list are plotted in the same plot window.  An
+optional legend containing the plot symbol and file name can be generated.  
+Fixed x and y axis limits may be defined before using this command.  See the
+XLIM and YLIM commands.  The plot is sized to the extrema of the entire file
+list if fixed limits are not requested.  An example is given on the next page.
+The location of the legend is controlled by the FILEID command.
+
+Unlike PLOT and PLOT1, PLOT2 will plot spectral data.  Real/Imaginary data is
+plotted as Real vs. Frequency.  Amplitude/Phase data is plotted as Amplitude
+vx. Frequency.  Imaginary and Phase information is ignored.  Spectral data is 
+always plotted in relative mode.
+
+Note:  If for some reason, the user has both time-series data and spectral data
+in memory at the same time and does not elect to use the RELATIVE option, the 
+time-series files will be plotted ABSOLUTE and the spectral files will be 
+plotted RELATIVE.  Relative mode means relative to the first file.  So the 
+order of the files in memory will effect the relation of the plots with respect
+to each other.  
+ 
+
+EXAMPLES:
+The commands used to generate the example plot are given below:
+ 
+      u:  READ MNV.Z.AM KNB.Z.AM ELK.Z.AM
+ 
+      u:  XLIM 0.04 0.16
+ 
+      u:  YLIM 0.0001 0.006
+ 
+      u:  LINLOG
+ 
+      u:  SYMBOL 2 INCREMENT
+ 
+      u:  TITLE 'Rayleigh Wave Amplitude Spectra for NESSEL'
+ 
+      u:  XLABEL 'Frequency (Hz)'
+ 
+      u:  PLOT2
+ 
+
+ERROR MESSAGES:
+1301: No data files read in.
+
+
+SEE COMMANDS:
+XLIM, YLIM, FILEID, FILENUMBER
+
+LATEST REVISION:
+June 22, 1999 (Version 0.58)
+Sample PLOT2 Output

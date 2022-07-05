@@ -1,0 +1,89 @@
+
+SAC Command Reference Manual                                    MERGE
+
+SUMMARY:
+Merges (concantenates) a set of files to data in memory.
+
+SYNTAX:
+MERGE {COMMIT|ROLLBACK|RECALLTRACE} {filelist}
+
+INPUT:
+      COMMIT  :  Commits headers and waveforms in SAC memory -- removing any 
+                 previous versions of headers or waveforms from RAM -- prior
+                 to merging files.  COMMIT is the default.
+
+      ROLLBACK  :  reverts to the last committed version of the header and 
+                   waveform before merging files.
+
+      RECALLTRACE  :  - reverts to the last committed version of the waveform,
+                - reverts to the last committed version of those header
+                  variables closely linked to the waveform,
+                - commits those header variables which are loosely linked
+                  to the waveform.
+                (use HELP RECALLTRACE for a list of which header variables are
+                committed, and which are rolled back.)
+
+      filelist  :  A list of SAC binary data files.  This list may contain
+          simple filenames, full or relative pathnames, and wildcard
+          characters.  See the READ command for a complete description.
+
+DESCRIPTION:
+The data in the files in this merge list is appended or concantenated to the
+data in memory.  Each pair of files to be merged is checked to make sure they
+have the same sampling interval and station name.  The end time of the first
+file is also compared with the begin time of the second file.  If there is a
+gap in these times, a warning message is generated and the appropriate number
+of zeros is placed in the merged file.  If there is an overlap in these times,
+an error message is generated and no merge is performed.
+
+EXAMPLES:
+To merge FILE3 and FILE4 to FILE1 and FILE2 respectively:
+ 
+      u:  READ FILE1 FILE2
+ 
+      u:  MERGE FILE3 FILE4
+ 
+To merge files for the same station, say ELKO.Z, from four different events
+each stored in a separate UNIX directory:
+ 
+      u:  READ /data/event1/elko.z
+ 
+      u:  MERGE /data/event2/elko.z
+ 
+      u:  MERGE /data/event3/elko.z
+ 
+      u:  MERGE /data/event4/elko.z
+ 
+If you were on different kind of computer (i.e. not UNIX) then only the way
+you specify full pathnames would be different.
+
+Note:  for examples of the behavior of COMMIT, ROLLBACK, and RECALLTRACE, see
+       the commands of the same name.  
+
+HEADER CHANGES:
+NPTS, DEPMIN, DEPMAX, DEPMEN, E
+
+ERROR MESSAGES:
+1301: No data files read in.
+
+1803: No binary data files read in.
+
+1307: Illegal operation on spectral file
+
+1306: Illegal operation on unevenly spaced file
+
+1801: Header field mismatch:
+
+- either the sampling interval or station name are not equal.
+1802: Time overlap:
+
+
+WARNING MESSAGES:
+1805: Time gap (zeros added):
+
+
+SEE COMMANDS:
+READ, COMMIT, ROLLBACK, RECALLTRACE
+
+LATEST REVISION:
+Oct. 27, 1998 (Version 0.58)

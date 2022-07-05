@@ -1,0 +1,49 @@
+
+Documentation for the commands listed below can 
+be viewed using the help command by typing: 
+
+help command_name
+
+You can also inspect the ascii documentation files under 
+the help subdirectory of the $SACAUX directory.  
+Please report any problems to Lee Minner at minner1@llnl.gov
+
+abs             endframe        lowpass         readbbf         transfertable
+absolutevalue   envelope        macro           readcss         tsize
+add             erase           map             readerr         unsetbb
+addf            evaluate        markptp         readhdr         unwrap
+apk             exp             marktimes       readsdd         vspace
+axes            exp10           markvalue       readsp          wait
+bandpass        fft             merge           rename          whpf
+bandrej         fileid          message         report          width
+bbfk            filterdesign    mtw             reverse         wiener
+beam            fir             mul             rglitches       wild
+begindevices    floor           mulf            rmean           window
+beginframe      funcgen         mulomega        rms             write
+beginwindow     getbb           news            rotate          writebbf
+benioff         grayscale       nplotc          rq              writehdr
+binoperr        grid            null            rtrend          writesdd
+border          group           oapf            setbb           writesp
+capf            gtext           ohpf            setdevice       xdiv
+cds             hanning         pause           setmacro        xfudge
+chnhdr          help            picks           sgf             xfull
+chpf            highpass        plabel          smooth          xgrid
+color           hilbert         plot            spe             xlabel
+comcor          ifft            plot1           spectrog        xlim
+contents*       inicm           plot2           spectrogram     xlin
+contour         installmacro    plotalpha       sqr             xlog
+convert         int             plotc           sqrt            xvport
+copy            interpolate     plotctable      sss             ydiv
+copyhdr         intro*          plotdy          stretch         yfudge
+correlate       keepam          plotpk          sub             yfull
+cut             khronhite       plotpktable     subf            ygrid
+cuterr          lds             plotpm          symbol          ylabel
+datagen         line            plotsp          synchronize     ylim
+decimate        linlin          plotxy          syntax          ylin
+delete          linlog          production      systemcommand   ylog
+dif             listhdr         qdp             taper           yvport
+div             log             quantize        ticks           zcolors
+divf            log10           quit            title           zlabels
+divomega        loglab          quitsub         trace           zlevels
+echo            loglin          read            transcript      zlines
+enddevices      loglog          readalpha       transfer        zticks

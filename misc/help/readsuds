@@ -1,0 +1,306 @@
+
+SAC Command Reference Manual                                  READSUDS
+
+SUMMARY:
+Read data files in PC-SUDS format from disk into memory.
+
+Note:  SUDS data enters SAC via SAC's CSS data buffers.  To understand how
+       arrivals are handled, use HELP READCSS and HELP PICKPREFS.
+
+
+
+SYNTAX:
+READSUDS {MAXMEM v} {MORE} {VERBOSE ON|OFF} {SHIFT ON|OFF} 
+{COMMIT|ROLLBACK|RECALLTRACE} {DIR name}  filelist 
+ 
+  
+
+INPUT:
+      MAXMEM: Specify the maximum fraction of physical memory to use when
+          reading large data sets. When this limit is reached, no more 
+          waveforms will be read, although other tables may still be read.
+          The default value for MAXMEM is 0.3.
+          
+      MORE  :  See the READ command.  
+      
+      VERBOSE ON|OFF: If VERBOSE is ON, SAC displays extended information
+          about the waveforms being read, and prints a summary of the CSS
+          tables that were filled. SAC also displays a progress indicator 
+          for the conversion to SAC internal format.
+
+      SHIFT ON|OFF:  If SHIFT is on, the origin time is set to zero, and
+	  other time related header variables are shifted back to be
+	  consistent with the origin time.  Some of the distance related 
+	  header variables are also affected.  SHIFT ON is the default.
+ 
+      COMMIT  :  If the MORE option is specified, the COMMIT option commits
+                  headers and waveforms in SAC memory -- removing any previous
+                  versions of headers or waveforms from RAM -- prior to 
+                  reading more files.  COMMIT is the default.  
+ 
+      ROLLBACK  :  If the MORE option is specified, the ROLLBACK option reverts
+                    to the last committed version of the header and waveform
+                    before reading more files.  
+ 
+      RECALLTRACE  :  If the MORE option is specified, the RECALLTRACE option:
+               - reverts to the last committed version of the waveform, 
+               - reverts to the last committed version of those header 
+                 variables closely linked to the waveform, 
+               - commits those header variables which are loosely linked 
+                 to the waveform.  
+                 (use HELP RECALLTRACE for a list of which header variables are 
+                 committed, and which are rolled back.)
+
+           Note:  if the MORE option is not specified, the COMMIT, ROLLBACK, 
+                  and RECALLTRACE options have no effect.  
+
+
+      DIR name  :  The directory to be searched for sudsfile(s).  
+
+      filelist  :  The name(s) of one or more suds files.  
+
+DEFAULT VALUES:
+READSUDS * MAXMEM 0.3 VERBOSE OFF COMMIT
+
+DESCRIPTION:
+See the READ command.  Oct. 27, 1998 (Version 00.58)
+
+      Any command which loads data into memory is monitored to maintain a
+level of confidence in the event infomation when transfered from the SAC
+data buffer to the CSS data buffer.  When READSUDS is used, the confidence
+is set to LOW, indicating that SAC should consider any matching event IDs
+as artifacts and reassign the event ID of the incoming file.  For more 
+details, use HELP READ.
+
+
+NOTES:
+
+READSUDS assumes that the data are still in PC byte-order, and swaps bytes 
+as necessary while reading the files. 
+
+The following SUDS headers should be populated:
+	DESCRIPTRACE
+	STATIONCOMP
+	FEATURE
+	EVENT
+	ORIGIN
+
+Statident structs for a given channel must have all fields set identically 
+to allow joining: i.e. dt->dt_name = fe->fe_name = sc->sc_name.
+
+There should be only 1 origin and 1 event in the SUDS file since PC-SUDS has 
+no way to associate origins with features or descriptraces.
+
+ev->number must equal or->number to associate the event with the origin.
+
+SUDS Magnitude, Authority, Program, Instrument, and Phase codes must be from the
+following code lists in order to translate to CSS.
+	
+Suds magnitude codes:
+===========================================================================================
+or->mag_type in origin (type char): 
+      case 'S': "ms"
+      case 'b': "mb"
+      case 'c': "md"
+      case 'l': "ml"
+      case 'm': "mw"
+      case 's': "ms"
+      case 'w': "mw"
+===========================================================================================
+
+
+
+Suds Authority codes:
+===========================================================================================
+or->authority in origin (type short): 
+ev->authority in event
+
+
+   case 1000: "USGS-Menlo-Park"
+   case 1002: "CALNET"
+   case 1050: "RTP-USGS-Menlo-Park"
+   case 2000: "Geophysical-Institute-U-of-Alaska"
+   case 3000: "University-of-Washington"
+   case 4000: "Lamont-Doherty-Geological-Observatory"
+   case 5000: "IRIS"
+   case 5100: "GSN"
+   case 5200: "ASRO"
+   case 5300: "PASSCAL"
+   case 6000: "LLNL"
+   case 7000: "LBL"
+   case 8000: "LANL"
+===========================================================================================
+
+
+
+Suds program codes
+===========================================================================================
+or->program in origin (type char): 
+
+   case '7': "Hypo-71"
+   case 'h': "HypoInverse"
+   case 'l': "HypoLayer"
+   case 'c': "Centroid"
+   case 'v': "Velest"
+===========================================================================================
+
+
+
+
+Suds event codes 
+===========================================================================================
+ev->ev_type in event (type char): 
+
+         case 'e': "ke"  /*known earthquake */
+         case 'E': "qb"  /*quarry blast */
+         case 'n': "kn"  /*known nuclear explosion */
+         case 'i': "iq"  /*icequake*/
+         case 'r': "rq"  /*regional earthquake*/
+         case 't': "tq"  /*teleseismic earthquake*/
+         case 'K': "kr"  /*known rockburst*/
+         case 'k': "sr"  /*suspected rockburst*/
+         case 'm': "sm"  /*suspected mine explosion*/
+         case 'M': "km"  /*known mine explosion*/
+         case 's': "se"  /*suspected earthquake*/
+         case 'S': "sn"  /*suspected nuclear explosion*/
+         case 'l': "ls"  /*landslide*/
+         case 'd': "si"  /*suspected induced event*/
+         case 'D': "ki"  /*known induced event*/
+         case 'x': "sx"  /*suspected experimental explosion*/
+         case 'X': "kx"  /*known experimental explosion*/
+===========================================================================================
+
+
+
+Suds instrument codes
+===========================================================================================
+suds_statident->inst_type (type short): 
+
+
+         case 0: "Unk" 
+         case 1: "sp-usgs" 
+         case 2: "sp-wwssn" 
+         case 3: "lp-wwssn" 
+         case 4: "sp-dwwssn" 
+         case 5: "lp-dwwssn" 
+         case 6: "hglp-lamont" 
+         case 7: "lp-hglp-lamont" 
+         case 8: "sp-sro" 
+         case 9: "lp-sro" 
+         case 10: "sp-asro" 
+         case 11: "lp-asro" 
+         case 12: "sp-rstn" 
+         case 13: "lp-rstn" 
+         case 14: "sp-uofa-U-of-Alaska" 
+         case 15: "STS-1/UVBB" 
+         case 16: "STS-1/VBB" 
+         case 17: "STS-2" 
+         case 18: "FBA-23" 
+         case 19: "Wilcoxin" 
+         case 50: "USGS-cassette" 
+         case 51: "GEOS" 
+         case 52: "EDA" 
+         case 53: "Sprengnether-refraction" 
+         case 54: "Teledyne-refraction" 
+         case 55: "Kinemetrics-refraction" 
+         case 300: "amplifier" 
+         case 301: "amp/vco" 
+         case 302: "filter" 
+         case 303: "summing-amp" 
+         case 304: "transmitter" 
+         case 305: "receiver" 
+         case 306: "antenna" 
+         case 307: "battery" 
+         case 308: "solar-cell" 
+         case 309: "discriminator" 
+         case 310: "discr-rack" 
+         case 311: "paper-recorder" 
+         case 312: "film recorder" 
+         case 313: "smoked glass recorder" 
+         case 314: "atod convertor" 
+         case 315: "computer" 
+         case 316: "clock" 
+         case 317: "time receiver" 
+         case 318: "magnetic tape" 
+         case 319: "magntic disk" 
+         case 320: "optical disk" 
+===========================================================================================
+
+
+
+
+
+
+suds phases in fe->feature (type short)
+===========================================================================================
+
+         case  0: "none" 
+         case 1: "window" 
+         case 2: "f finis" 
+         case 3: "MaxAmp" 
+         case 50: "P-first" 
+         case 51: "P" 
+         case 52: "P*" 
+         case 53: "PP" 
+         case 54: "PPP" 
+         case 55: "PPPP" 
+         case 56: "PPS" 
+         case 57: "Pg" 
+         case 58: "Pn" 
+         case 59: "Pdiff" 
+         case 60: "PcP" 
+         case 61: "PcPPKP" 
+         case 62: "PcS" 
+         case 63: "pP" 
+         case 64: "pPP" 
+         case 65: "PKP" 
+         case 66: "PKPPKP" 
+         case 67: "PKPPKS" 
+         case 68: "PKPSKS" 
+         case 69: "PKS" 
+         case 70: "pPKS" 
+         case 71: "PKKP" 
+         case 72: "PKKS" 
+         case 73: "PcPPKP" 
+         case 74: "PcSPKP" 
+         case 100: "S-first" 
+         case 101: "S" 
+         case 102: "S*" 
+         case 103: "SS" 
+         case 104: "SSS" 
+         case 105: "SSSS" 
+         case 106: "Sg" 
+         case 107: "Sn" 
+         case 108: "ScS" 
+         case 109: "SPcS" 
+         case 110: "sS" 
+         case 111: "sSS" 
+         case 112: "sSSS" 
+         case 113: "SScS" 
+         case 114: "ScSPKP" 
+         case 115: "ScP" 
+         case 116: "SKS" 
+         case 117: "SKKS" 
+         case 118: "SKKKS" 
+         case 119: "SKSSKS" 
+         case 120: "SKP" 
+         case 121: "SKKP" 
+         case 122: "SKKKP" 
+         case 201: "Lg" 
+         case 202: "Lr" 
+         case 203: "Lr2" 
+         case 204: "Lr3" 
+         case 205: "Lr4" 
+         case 206: "Lq" 
+         case 207: "Lq2" 
+         case 208: "Lq3" 
+         case 209: "Lq4" 
+         case 301:  "t" 
+===========================================================================================
+
+
+SEE COMMANDS:
+  READ, PICKAUTHOR, PICKPHASE, COMMIT, ROLLBACK, RECALLTRACE
+
+LATEST REVISION:
+October 27, 1998 (Version 00.58)

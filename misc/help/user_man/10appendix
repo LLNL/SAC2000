@@ -1,0 +1,692 @@
+SAC2000 User's Manual
+
+
+Appendix: Subroutine Calls
+
+ 
+Overview
+This section documents the SAC subroutines discussed in this manual.
+They are sorted alphabetically by name and include the FORTRAN calling 
+sequence, C prototype, purpose, input arguments, and output arguments.
+The following notation is used in describing the arguments:
+
+	f    Floating point (real) variable.
+	i    Integer variable, long integer (32 bits.)
+	c    Character variable, arbitrary length, blank padded.
+	c n  Character variable,  n characters long.
+	k    Character variable, arbitrary length, blank padded.
+	l    Logical variable (declared as long in C).
+	xa   An array of the type  x, where  x is one of the above.
+
+	For C functions, parameter names ending with _s are string
+	length specifiers.  Output strings should be padded with spaces
+	and null terminated in the last element of the array.  Input
+	strings can be null terminated at the end of the meaningful
+	characters, or can be padded with spaces.  String length specifiers
+	refering to output strings should count the number of bytes 
+	available for the called function to utilize.  Those that refer
+	to input strings can simply be the number of meaningful characters
+	(ignoring blank padding and null terminators), or they can
+	count padding if the padding is actually there.
+
+________________________________________________________________________________
+GETBBV
+
+        C:              void getbbv(kname, kvalue, nerr, kname_s, kvalue_s)
+                        char *kname;
+                        char *kvalue;
+                        long int *nerr;
+                        long int kname_s;
+                        long int kvalue_s;
+
+                        Note, maximum length of kvalue is 33.
+
+        FORTRAN:        call getbbv( kname, kvalue, nerr )
+                        character*8     kname
+                        character*33    kvalue
+                        integer*4       nerr
+
+                        note: kvalue is set in getbbv, getbbv is written
+                              in C, so the length of kvalue is 33 instead of 32
+                              to make room for C's null terminator.
+
+
+        purpose:        To get a blackboard variable value from the
+                        current SAC file.
+
+        Input variables:
+                        kname:   the name of the blackboard variable to read,
+                        kname_s: (C only) string length of kname.
+			kvalue_s: (C only) string length of kvalue.
+
+        Output variables:
+                        kvalue:  the value of the blackboard variable read,
+                        nerr: Error flag
+                              Set to 0 if no error occurred.
+________________________________________________________________________________
+GETFHV
+
+        C:              void getfhv( kname, fvalue, nerr, kname_s )
+                        char     *kname;
+                        float    *fvalue;
+                        long int *nerr;
+                        long int kname_s;
+
+        FORTRAN:        call getfhv( kname, fvalue, nerr )
+                        character*8     kname
+                        real*4          fvalue
+                        integer*4       nerr
+
+        purpose:        To get a floating point (real) header value from the
+                        current SAC file.
+
+        Input variables:
+                        kname:   the name of the header variable to read,
+                        kname_s: (C only) string length of kname.
+
+        Output variables:
+                        fvalue:  the value of the header variable read,
+                        nerr: Error flag 
+                              Set to 0 if no error occurred.
+                              Set to 1336 if Header variable is undefined.
+                              Set to 1337 if Header variable does not exist.
+________________________________________________________________________________
+    
+GETIHV
+
+	C:              void getihv( kname, kvalue, nerr, kname_s, kvalue_s )
+                        char     *kname;
+                        char     *kvalue;
+                        long int *nerr;
+                        long int kname_s;
+                        long int kvalue_s;
+
+        FORTRAN:        call getihv( kname, kvalue, nerr )
+                        character*8     kname
+                        character*33    kvalue
+                        integer*4       nerr
+
+                        note: kvalue is set in getihv, getihv is written
+                              in C, so the length of kvalue is 33 instead of 32
+                              to make room for C's null terminator.
+
+        purpose:        To get an emumerated header value from the current SAC
+                        file.  Enumerated headers are character strings denoted
+                        by integer values.
+
+        Input variables:
+                        kname:   the name of the header variable to read,
+                        kname_s: (C only) string length of kname
+                        kvalue_s: (C only) the maximum number of elements
+                                 in the character string kvalue (must be 33 or
+                                 larger, counting the null terminator).
+
+        Output variables:
+                        kvalue: Value of header field from current SAC 
+                                data file.  Each value represents a specific 
+                                condition.  To make this subroutine interface 
+                                more readable, the name of the value is 
+                                returned rather than its integer representation.
+
+                        nerr: Error flag. Set to 0 if no error occurred.
+                              = 1336 Header variable is undefined.
+                              = 1337 Header variable does not exist.
+________________________________________________________________________________
+
+GETKHV
+
+        C:              void getkhv(kname, kvalue, nerr, kname_s, kvalue_s)
+                        char     *kname;
+                        char     *kvalue;
+                        long int *nerr;
+                        long int kname_s;
+                        long int kvalue_s;
+
+        FORTRAN:        call getkhv( kname, kvalue, nerr )
+                        character*8 kname
+                        character*9 kvalue (character*17 if kname = 'kevnm')
+                        integer*4   nerr
+
+			note: kvalue is set in getkhv, getkhv is written
+			      in C, so the length of kvalue is 9 instead of 8
+			      (17 instead of 16) for C's null terminator. 
+
+        purpose:        To get a character header value from the current SAC
+                        file.
+
+        Input variables:
+                        kname:   the name of the header variable to read,
+                        kname_s: (C only) string length of kname
+                        kvalue_s: (C only) the maximum number of elements
+                                 in the character array kvalue (must be 9 or
+                                 larger, counting the null terminator (17
+                                 or longer for kevnm) ).
+
+        Output variables:
+                        kvalue: Value of header field from current SAC data 
+                                file.  kevnm is 17 characters long.  
+                                All others are 9 (including null terminator).
+
+                        nerr: Error flag. Set to 0 if no error occurred.
+                              = 1336 Header variable is undefined.
+                              = 1337 Header variable does not exist.
+________________________________________________________________________________
+
+GETLHV
+
+        C:              void getlhv(kname, lvalue, nerr, kname_s)
+                        char     *kname;
+                        long     *lvalue;
+                        long int *nerr;
+                        long int kname_s;
+
+        FORTRAN:        call getlhv( kname, lvalue, nerr )
+                        character*8 kname
+                        integer*4   lvalue
+                        integer*4   nerr
+
+        purpose:        To get a logical header value from the current SAC 
+                        file.
+
+        Input variables:
+                        kname:   the name of the header variable to read,
+                        kname_s: (C only) string length of kname 
+
+        Output variables:
+                        lvalue: Value of header field from current SAC 
+                                data file.
+
+                        nerr: Error flag. Set to 0 if no error occurred.
+                              = 1336 Header variable is undefined.
+                              = 1337 Header variable does not exist.
+________________________________________________________________________________
+
+GETNHV
+
+       C:              void getnhv(kname, nvalue, nerr, kname_s)
+                        char     *kname;
+                        long int *nvalue;
+                        long int *nerr;
+                        long int kname_s;
+
+        FORTRAN:        call getnhv(kname, nvalue, nerr )
+                        character*8 kname
+                        integer*4   nvalue
+                        integer*4   nerr
+
+        purpose:        To get an integer header value from the current SAC
+                        file.
+
+        Input variables:
+                        kname:   the name of the header variable to read,
+                        kname_s: (C only) string length of kname
+
+        Output variables:
+                        nvalue:  the integer value of the header variable read.
+
+                        nerr: Error flag. Set to 0 if no error occurred.
+                              = 1336 Header variable is undefined.
+                              = 1337 Header variable does not exist.
+________________________________________________________________________________
+
+NEWHDR
+
+        C:              void newhdr ()
+
+        FORTRAN:        call newhdr ()
+
+        purpose:        To prepare a new (default) header (does not allocate
+                        space, simply initializes everything to undefined).
+
+        SPECIAL NOTE:  Except for the ones listed below, all of the header
+                       variables are set the undefined state.
+ 
+          NVHDR: Set to the current header version number.
+          IFTYPE: Set to ITIME
+          LEVEN: Set to TRUE
+          LOVROK: Set to TRUE
+          LCALDA Set to TRUE
+________________________________________________________________________________
+
+READBBF
+
+        C:              void readbbf(kname, nerr, kname_s)
+                        char *kname;
+                        long int *nerr;
+                        long int kname_s ;
+
+        FORTRAN:        call readbbf(kname, nerr)  
+                        character*8 kname 
+                        integer*4 nerr
+
+        purpose:        To read a file of blackboard variables.
+
+        Input variables:
+                        kname:   Name of disk file to read (padded at the end
+                                 with blanks or '\0's).
+                        kname_s: (C only) string length of kname
+
+        Output variables:
+                        nerr: Error return flag 0 if no error occurred. [i]
+
+________________________________________________________________________________
+
+RSAC1
+
+        C:         void rsac1(kname, yarray, nlen, beg, del, max, nerr, kname_s)
+                        char     *kname;
+                        float    yarray[];
+                        long int *nlen;
+                        float    *beg;
+                        float    *del;
+                        long int *max;
+                        long int *nerr;
+                        long int kname_s;
+
+        FORTRAN:        call rsac1(kname, yarray, nlen, beg, del, max, nerr )
+                        character*8 kname
+                        real*4      yarray(*)
+                        integer*4   nlen
+                        real*4      beg
+                        real*4      del
+                        integer*4   max
+                        integer*4   nerr
+
+        purpose:        To read an evenly spaced SAC file.
+
+        Input variables:
+                        kname:   Name of disk file to read (padded at the end
+                                 with blanks or '\0's).
+                        max:     number of elements in yarray.
+                        kname_s: (C only) string length of kname
+
+        Output variables:
+                        yarray:  contains the data from the file.
+                        nlen:    number of data points read.
+                        beg:     beginning value of independent variable.
+                        del:     sampling interval of the independent variable.
+
+
+                        nerr: Error return flag 0 if no error occurred. [i] 
+                              Possible values for this subroutine are:
+                              =  801 if file is not evenly spaced.
+                              = -803 if number of poitns in file is 
+                                 greater than max.  In this case, the first 
+                                 max points are read.
+
+________________________________________________________________________________
+
+RSAC2
+
+        C:         void rsac2(kname, yarray, nlen, xarray, max, nerr, kname_s)
+                        char     *kname;
+                        float    yarray[];
+                        long int *nlen;
+                        float    xarray[];
+                        long int *max;
+                        long int *nerr;
+                        long int kname_s;
+
+        FORTRAN:        call rsac2(kname, yarray, nlen, xarray, max, nerr )
+                        character*8 kname
+                        real*4      yarray(*)
+                        integer*4   nlen
+                        real*4      xarray(*)
+                        integer*4   max
+                        integer*4   nerr
+
+        purpose:        To read an unevenly spaced or spectral SAC file.
+
+        Input variables:
+                        kname:   Name of disk file to read (padded at the end
+                                 with blanks or '\0's).
+                        max:     number of elements in yarray and xarray.
+                        kname_s: (C only) string length of kname
+
+        Output variables:
+                        yarray:  contains the dependent variable from the file.
+                        nlen:    number of data points read.
+                        xarray:  contains the independent variable from the file
+ 
+                        nerr: Error return flag. Set to 0 if no error occcurred.
+                              Possible values for this subroutine:
+                              =  802 If file is evenly spaced.
+                              = -803 if number of pitns in file is greater than
+                                 max.  In this case, the first max points are 
+                                 read.
+________________________________________________________________________________
+
+SETBBV
+
+        C:              void setbbv(kname, kvalue, nerr, kname_s, kvalue_s)
+                        char *kname;
+                        char *kvalue;
+                        long int *nerr;
+                        long int kname_s;
+                        long int kvalue_s;
+
+        FORTRAN:        call setbbv(kname, kvalue, nerr)
+                        character*8 kname
+                        character*32 kvalue
+                        integer*4 nerr
+
+        purpose:        To set a blackboard variable in the
+                        current SAC file.
+
+        Input variables:
+                        kname:   the name of the blackboard variable to set,
+                        kvalue:  the value of the blackboard variable set,
+                        kname_s: (C only) string length of kname
+                        kvalue_s: (C only) string length of kvalue
+
+        Output variables:
+                        nerr: Error flag. Set to 0 if no error occurred.
+________________________________________________________________________________
+
+SETFHV
+
+        C:              void setfhv( kname, fvalue, nerr, kname_s )
+                        char     *kname;
+                        float    *fvalue;
+                        long int *nerr;
+                        long int kname_s;
+
+        FORTRAN:        call setfhv( kname, fvalue, nerr )
+                        character*8     kname
+                        real*4          fvalue
+                        integer*4       nerr
+
+        purpose:        To set a floating point (real) header value in the
+                        current SAC file.
+
+        Input variables:
+                        kname:   the name of the header variable to set,
+                        fvalue:  the value of the header variable set,
+                        kname_s: (C only) string length of kname
+
+        Output variables:
+                        nerr: Error flag. Set to 0 if no error occurred.
+                              = 1337 Header field does not exist.
+________________________________________________________________________________
+
+SETIHV
+
+        C:              void setihv( kname, kvalue, nerr, kname_s, kvalue_s )
+                        char     *kname;
+                        char     *kvalue;
+                        long int *nerr;
+                        long int kname_s;
+                        long int kvalue_s;
+
+        FORTRAN:        call setihv( kname, kvalue, nerr )
+                        character*8     kname
+                        character*32    kvalue
+                        integer*4       nerr
+
+        purpose:        To set an emumerated header value in the current SAC
+                        file.  Enumerated headers are character strings denoted
+                        by integer values.
+
+        Input variables:
+                        kname:   the name of the header variable to set,
+                        kvalue:  the character string value of the header
+                                 variable set.
+                        kname_s: (C only) string length of kname
+                        kvalue_s: (C only) the maximum number of elements
+                                 in the character array kvalue (must be 32 or
+                                 larger, not counting the null terminator).
+
+            Each value represents a specific condition.
+            To make this subroutine interface more readable, the name of
+            the value is input rather than its integer representation.
+
+        Output variables:
+                        nerr: Error flag. Set to 0 if no error occurred.
+                              = 1337 Header variable does not exist.
+________________________________________________________________________________
+
+SETKHV
+
+        C:              void setkhv(kname, kvalue, nerr, kname_s, kvalue_s)
+                        char     *kname;
+                        char     *kvalue;
+                        long int *nerr;
+                        long int kname_s;
+                        long int kvalue_s;
+
+        FORTRAN:        call setkhv( kname, kvalue, nerr )
+                        character*8 kname
+                        character*8 kvalue (character*16 if kname = 'kevnm')
+                        integer*4   nerr
+
+        purpose:        To set a character header value in the current SAC
+                        file.
+
+        Input variables:
+                        kname:   the name of the header variable to set,
+                        kvalue:  the character string value of the header
+                                 variable set.
+                        kname_s: (C only) string length of kname
+                        kvalue_s: (C only) the maximum number of elements
+                                 in the character array kvalue (must be 8 or
+                                 larger, not counting the null terminator
+                                 (16 or longer for kevnm) ).
+
+
+            Note:  KEVNM is 16 characters long.  All others are 8.
+
+        Output variables:
+                        nerr: Error flag. Set to 0 if no error occurred.
+                              = 1337 Header field does not exist.
+________________________________________________________________________________
+
+SETLHV
+
+        C:              void setlhv(kname, lvalue, nerr, kname_s)
+                        char     *kname;
+                        long     *lvalue;
+                        long int *nerr;
+                        long int kname_s;
+
+        FORTRAN:        call setlhv( kname, lvalue, nerr )
+                        character*8 kname
+                        integer*4   lvalue
+                        integer*4   nerr
+
+        purpose:        To set a logical header value in the current SAC file.
+
+        Input variables:
+                        kname:   the name of the header variable to set,
+                        lvalue:  New value of header field.
+                        kname_s: (C only) string length of kname
+ 
+        Output variables:
+                        nerr: Error flag. Set to 0 if no error occurred.
+                              = 1337 Header field does not exist.
+________________________________________________________________________________
+
+SETNHV
+
+        C:              void setnhv(kname, nvalue, nerr, kname_s)
+                        char     *kname;
+                        long int *nvalue;
+                        long int *nerr;
+                        long int kname_s;
+
+        FORTRAN:        call setnhv(kname, nvalue, nerr )
+                        character*8 kname
+                        integer*4   nvalue
+                        integer*4   nerr
+
+        purpose:        To set an integer header value in the current SAC
+                        file.
+
+        Input variables:
+                        kname:   the name of the header variable to set,
+                        nvalue:  the integer value of the header variable set.
+                        kname_s: (C only) string length of kname
+
+        Output variables:
+                        nerr: Error flag. Set to 0 if no error occurred.
+                              = 1337 Header field does not exist.
+________________________________________________________________________________
+
+UNSETBBV
+
+	C:		void unsetbbv(kname, nerr, kname_s)
+			char     *kname;
+			long int *nerr;
+			int       kname_s;
+
+	FORTRAN:	call unsetbbv(kname, nerr)
+			character*8 kname
+			integer*4   nerr
+
+	purpose:	To unset (delete) a blackboard variable.
+
+	Input variables:
+			kname:	the name of the header variable to unset,
+			kname_s: (C only) string length of kname
+
+	Output variables:
+			nerr: Error flag. Set to 0 if no error occurred.
+				= 1337 Header field does not exist.
+________________________________________________________________________________
+
+WRITEBBF
+
+        C:              void writebbf(kname, nerr, kname_s)
+                        char *kname;
+                        long int *nerr;
+                        long int kname_s ;
+
+        FORTRAN:        call writebbf(kname, nerr)
+                        character*8 kname
+                        integer*4 nerr
+
+        purpose:        To write a file of blackboard variables.
+
+        Input variables:
+                        kname:  Name of disk file to write (padded at the end
+                                with blanks or '\0's).
+                        kname_s: (C only) string length of kname
+
+        Output variables:
+                        nerr:   error status; always 0 if there was no error.
+________________________________________________________________________________
+
+WSAC0
+
+        C:              void wsac0(kname, xarray, yarray, nerr, kname_s)
+                        char     *kname;
+                        float    *xarray;
+                        float    *yarray;
+                        long int *nerr;
+                        long int kname_s;
+
+        FORTRAN:        call wsac0(kname, xarray, yarray, nerr)
+                        character*8 kname
+                        real*4      xarray(*)
+                        real*4      yarray(*)
+                        integer*4   nerr
+
+        purpose:        To write a SAC file to disk using current header values
+.
+
+        Input variables:
+                        kname:  Name of disk file to write (padded at the end
+                                with blanks or '\0's).
+                        xarray: contains the independent variable.
+                        yarray: contains the dependent variable.
+                        kname_s: (C only) string length of kname
+
+        Output variables:
+                        nerr:   error status; always 0 if there was no error.
+________________________________________________________________________________
+
+WSAC1
+
+        C:              void wsac1(kname, yarray, nlen, beg, del, nerr, kname_s)
+                        char     *kname;
+                        float    yarray[];
+                        long int *nlen;
+                        float    *beg;
+                        float    *del;
+                        long int *nerr;
+                        long int kname_s;
+
+        FORTRAN:        call wsac1(kname, yarray, nlen, beg, del, nerr )
+                        character*8 kname
+                        real*4      yarray(*)
+                        integer*4   nlen
+                        real*4      beg
+                        real*4      del
+                        integer*4   nerr
+
+        purpose:        To write an evenly spaced SAC file.
+
+        Input variables:
+                        kname:   Name of disk file to write (padded at the end
+                                 with blanks or '\0's).
+                        yarray:  contains the dependent variable.
+                        nlen:    number of data points to write.
+                        beg:     beginning value of independent variable.
+                        del:     sampling interval of the independent variable.
+                        kname_s: (C only) string length of kname
+
+        Output variables:
+                        nerr:    error status; always 0 if there was no error.
+________________________________________________________________________________
+
+WSAC2
+
+        C:              void wsac2(kname, yarray, nlen, xarray, nerr, kname_s)
+                        char     *kname;
+                        float    yarray[];
+                        long int *nlen;
+                        float    xarray[];
+                        long int *nerr;
+                        long int kname_s;
+
+        FORTRAN:        call wsac2(kname, yarray, nlen, xarray, nerr )
+                        character*8 kname
+                        real*4      yarray(*)
+                        integer*4   nlen
+                        real*4      xarray(*)
+                        integer*4   nerr
+
+        purpose:        To write an unevenly spaced or spectral SAC file.
+
+        Input variables:
+                        kname:   Name of disk file to write (padded at the end
+                                 with blanks or '\0's).
+                        yarray:  contains the dependent variable.
+                        nlen:    number of data points to write.
+                        xarray:  contains the independent variable.
+                        kname_s: (C only) string length of kname
+
+        Output variables:
+                        nerr:    error status; always 0 if there was no error.
+________________________________________________________________________________
+
+
+Note:  The I/O routines in sac.a are written in C in a FORTRAN friendly
+manner.  This means the following details have been addressed:
+
+     -  these routines can be called from either C or FORTRAN, with or
+        without a trailing underscore (_).
+
+     -  for each character string in the parameter list, there is a
+        string length specifier in the end of the parameter list which is
+        transparent to FORTRAN calling routines.  That means that calling
+        C routines should include the string length specifiers in the
+        parameter list, and calling FORTRAN routines should not include
+        them.
+
+     -  the string length specifiers are declared as long int.
+
+     -  the rest of the parameters are pointers in C, which means calling
+        C routines should pass addresses, and calling FORTRAN routines
+        should just pass the variable, because FORTRAN always passes by
+        reference.
+

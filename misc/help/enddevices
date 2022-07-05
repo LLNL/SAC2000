@@ -1,0 +1,31 @@
+
+SAC Command Reference Manual                               ENDDEVICES
+
+SUMMARY:
+Terminates one or more graphics devices.
+
+SYNTAX:
+ENDDEVICES TERMINAL,SGF,XWINDOWS,SUNWINDOWS
+
+ALTERNATE FORMS:
+ENDG or EG are obsolete but acceptable names for this command.
+
+INPUT:
+      TERMINAL  :  The graphics terminal you are currently logged into.  
+
+      SGF  :  The SAC Graphics File device driver.  
+
+      XWINDOWS  :  The X-windows window display system.  
+
+      SUNWINDOWS  :  The Sun window display system.
+
+DESCRIPTION:
+This command terminates one or more graphics devices.  Devices are activated
+using the BEGINDEVICES command.  The BEGINDEVICES command has a description of
+each of these graphics devices.
+
+SEE COMMANDS:
+BEGINDEVICES
+
+LATEST REVISION:
+April 13, 1987 (Version 10.1)

@@ -1,0 +1,8 @@
+$keys dir
+$default dir .
+do station list cal cao cda cdv cmn cps cva cvl cvy
+  do comp list z n e
+    read alpha $dir$/$station$_$comp$.alpha 
+    write ../../misc/datagen/local/$station$.$comp$
+    enddo
+  enddo

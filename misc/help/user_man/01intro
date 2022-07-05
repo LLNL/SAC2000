@@ -1,0 +1,204 @@
+SAC2000 User's Manual
+
+
+Introduction
+
+
+Introduction
+SAC2000 (Seismic Analysis Code for the third millenium) is a general
+purpose interactive program designed for the study of sequential signals,
+especially time-series data.
+Emphasis has been placed on analysis tools used by research seismologists
+in the detailed study of seismic events.
+Analysis capabilities include general arithmetic operations,
+Fourier transforms, three spectral estimation techniques, IIR and FIR
+filtering, signal stacking, decimation, interpolation, correlation,
+and seismic phase picking.
+SAC2000 also contains an extensive graphics capability.
+Versions are available for a wide variety of computer systems.
+SAC2000 was developed at Lawrence Livermore National Laboratory and
+is copyrighted by the University of California.
+
+
+This manual
+
+This manual contains general information for the new user about
+what SAC2000 can do, how it works, and how to get started.
+It also contains detailed information for the more experienced user
+on topics such as how to use SAC macros,
+how to read and write SAC data files from C or FORTRAN programs,
+and how the SAC2000 program is structured.
+
+
+Table of Contents:
+
+Introduction
+	Provides an introduction, a table of contents, an update policy, 
+	and discussions of notation, other SAC manuals, design philosopy,
+	and version differences.  
+
+For New Users
+	An overview of SAC2000 and some suggestions on getting started.
+
+Analysis Capabilities
+        A brief description of each of the analysis commands.
+
+Graphical Capabilities
+        A brief description of the graphics devices and each of the
+        graphics commands.
+
+SAC Macros
+        A detailed description on how to create and use SAC macro files to
+        repeatedly execute a group of SAC commands.
+
+Inline Functions
+        A detailed description of a set of inline functions for performing
+        numeric calculations and character string manipulations within
+        other commands.
+
+Blackboard Variables 
+        The blackboard is a feature that can be used to temporarily store
+        and retrieve information while in SAC2000.  
+
+Reading And Writing SAC Data Files In Home Grown Software
+        A description of how to read and write SAC data files in your own C or 
+	FORTRAN program.  Also discussed is how to access specific header
+	variables.  
+
+SAC Data File Format
+        A detailed description of the SAC data file format, including
+        the header.
+
+Appendix: Subroutine Calls
+        A description, including the calling sequence, of each of the
+        subroutines discussed in this manual.
+
+Update Policy
+
+This manual will be periodically updated to include new
+descriptions and to revise old ones.
+It is suggested that it be kept in a loose leaf binder, to make it easier
+to incorporate these updates.
+The pages are not numbered for this reason.
+Please report any errors in this manual to:
+Peter Goldstein
+Mail Stop L-205
+Lawrence Livermore National Labortory
+Livermore, CA 94550
+Email: peterg@llnl.gov
+
+This will help keep it as accurate and current as possible.
+
+Notation
+
+This section describes the notation used in this manual.
+All of the SAC2000 manuals use a similiar notation.
+
+
+Uppercase words (e.g.  READ) identify commands or keywords.
+They must be entered as shown, although they may be either
+uppercase or lowercase.
+
+
+When showing examples of interaction between the user and SAC2000,
+the user inputs are denoted by ``u:'', and SAC2000's responses by ``s:''.
+A uppercase typewriter style font is used within these examples,
+with comments about what is happening appearing in lowercase and
+enclose in parentheses.
+
+
+Repeating an important point made above, you may enter
+keywords and options in either uppercase or lowercase.
+SAC2000 converts these to uppercase before interpreting them.
+The exceptions to this rule are text appearing within single or double
+quotes and the names of directories and files.
+The case of these items is not changed.  They are interpreted literally.
+
+
+Other manuals
+Other SAC2000 manuals include:
+
+
+A Tutorial Guide For New Users which explains the basic SAC commands
+with examples for you to try as you read.
+
+
+Commands Reference Manual which contains detailed descriptions of each
+SAC command including purpose, syntax, default values, and examples.
+This manual also contains lists of SAC commands sorted
+alphabetically and functionally.
+
+
+Spectral Estimation Subprocess Manual which describes
+a subprocess for the study of stationary random processes.
+A subprocess is like a small separate program within the main SAC2000 program.
+
+
+Signal Stacking Subprocess Manual which describes a subprocess
+for performing signal stacking with delays, traveltimes, and
+record section plots.
+
+
+SAC Graphics File Users Manual which describes a set of programs that
+can be used to perform various functions on SAC Graphics Files.
+
+
+Program Design
+
+
+Design Philosophy
+
+SAC2000 does not use a channel or a stack design.
+There are advantages and disadvantages in each of these designs.
+Concurrent operation was chosen because seismologists tend to perform
+the same operation on large numbers of seismic signals at the same time.
+This design sometimes requires you to store intermediate analysis results
+in temporary scratch files on disk.  SAC2000's design was modified in version
+10.6e to allow operations on sub-sets of files in memory to help minimize
+the need for writing temporary disk files.
+
+
+Version Differences
+SAC2000 is a fairly portable code written in C.
+Two areas that effect portability are operating systems and  graphics.
+There are currently versions for the following different types of computers
+and UNIX operating systems:
+
+SUN: compiled on Solaris 5.5 and SunOS 4.1.1.  Solaris is the platform
+     on which SAC2000 is developed, it is generally the most up-to-date
+     version.
+
+SGI: IRIX 6.2
+
+PC:  Linux 2.0.30
+
+DEC Alpha: OSF/1 V3.2 (Rev. 214) (this is brand new as of 10/97.
+                                 Consider it as a beta version)
+
+Old FORTRAN versions of SAC have also been ported to HP and IBM RS6000.
+SAC2000 works similiarly but not identically on each of these computers.
+
+SAC2000 handles the second area, graphics, by including three different
+graphics devices in the code.  They are:
+
+ XWINDOWS:
+
+A windowing scheme that is available on most graphics workstations.
+
+
+ SUNWINDOW:
+
+A windowing scheme that is available on SunOS v4.X.
+
+
+ SGF:
+
+Stands for SAC Graphics File. Each file contains all the information
+needed to generate a single plot.
+
+
+
+Each of these devices is described more fully in a later section of this manual.
+Check with your system administrator, if you need help.
+
+

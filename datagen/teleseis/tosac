@@ -1,0 +1,10 @@
+$keys dir
+$default dir .
+do station list ntk nyk onk sdk
+  do band list l m
+    do comp list z n e
+      read alpha $dir$/$station$$band$_$comp$.alpha 
+      write ../../misc/datagen/teleseis/$station$$band$.$comp$
+      enddo
+    enddo
+  enddo

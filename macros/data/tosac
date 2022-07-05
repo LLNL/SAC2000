@@ -1,0 +1,12 @@
+*
+* PURPOSE:  To convert from alphanumeric to binary SAC data files.
+*
+$keys dir
+$default dir .
+do station list cdv elk
+  conv from alpha $dir$/$station$_z_alpha to sac $dir$/$station$_z
+  enddo
+do station list elk knb mnv
+  conv from alpha $dir$/$station$_z_am_alpha to sac $dir$/$station$_z_am
+  enddo
+conv from alpha $dir$/contourdata_alpha to sac $dir$/contourdata

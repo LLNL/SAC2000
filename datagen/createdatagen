@@ -1,0 +1,26 @@
+# create the "funcgen seis" data
+sac<<EOF
+* echo on c m p
+read alpha seismogram.alpha
+write ../misc/seismogram
+q
+EOF
+
+# create the datagen directories
+mkdir ../misc/datagen
+mkdir ../misc/datagen/local
+mkdir ../misc/datagen/regional
+mkdir ../misc/datagen/teleseis
+
+# create the datagen data in the sudirectories
+foreach dir (local regional teleseis)
+
+cd $dir
+sac<<eof
+* echo on c m p
+m tosac
+q
+eof
+cd ..
+
+end

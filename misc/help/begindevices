@@ -1,0 +1,82 @@
+
+SAC Command Reference Manual                             BEGINDEVICES
+
+SUMMARY:
+Begins plotting to one or more graphics devices.
+
+SYNTAX:
+BEGINDEVICES devices
+ 
+where devices is one or more of the following:
+ 
+SGF, XWINDOWS, SUNWINDOWS
+ 
+
+ALTERNATE FORMS:
+BEGG and BG are obsolete but acceptable names for this command.
+
+INPUT:
+      SGF  :  The SAC Graphics File device driver.  
+
+      XWINDOWS  :  The X-windows window display system.  
+
+      SUNWINDOWS  :  The Sun window display system.
+
+DESCRIPTION:
+      The arguments to this command consists of a list of one or more graphics
+devices.  Subsequent plots are sent to the devices in this list.  This remains
+in effect until the next execution of a BEGINDEVICES or ENDDEVICES command or
+until SAC is terminated.  Details about each graphics device are given below.
+      There are three graphics "devices" currently being supported.  The first
+one, SAC Graphics File (SGF), is a general purpose device drivers representing 
+a large class of actual physical devices.  The second, XWINDOWS, is a general
+windowing system running on most high-resolution, bit-mapped graphics 
+workstations.  The third, SUNWINDOW, is a windowing system running under 
+SunOS 4.x.  Each device is described in more detail below.  The number, type, 
+and names of the graphics devices available on your system may be different 
+from this list.  Check with your system administrator or use the REPORT DEVICES 
+command to determine which devices are available.
+      SGF stands for SAC Graphics File.  A SAC Graphics File contains all the
+information needed to generate a single plot on any graphics device.  (Using 
+the current computer jargon, these are called graphics "metafiles.") Each plot 
+is stored in a separate file.  The file names are of the form "Fnnn.SGF" where 
+"nnn" is the plot number, beginning with "001".  You can control some features 
+of this file name using the SGF command.  Programs are available which can 
+display these files to the terminal, merge several files into a single file, or 
+produce an alphanumeric dump of a file for debugging.  Programs are also 
+available to convert these files to specific graphics devices such as the Apple 
+Laserwriter, Houston Instruments pen plotter, etc.  It is fairly easy to create 
+one of these conversion programs.  The format is described in the Users Manual.
+      XWINDOWS (or X for short) is a windowing scheme developed under the 
+industry-financed Athena project at MIT.  X employs what is called a network
+model, where a single process or server controls the screen display.  Other
+programs send requests to this server when they want to modify part of the
+screen.  X is widely accepted in the graphics workstation area and seems to 
+currently offer the best framework for developing portable window-based 
+applications.
+      SUNWINDOWS is a proprietary windowing system available on the
+workstations marketed by Sun Microsystems running SunOS 4.x.  It is not based 
+upon the network model.  Each program contains its own set of procedures to 
+control the screen.
+      The two windowing systems are incompatable.  You must be running under 
+one or the other at any given time.  Benchmarks using the SAC graphics library 
+do not show significant difference in graphics display speeds between these two 
+windowing systems.
+
+(1) For an overview of X, there is an article by Peter A. Hack called
+"The Advantages of X" in the August 1987 issue of Computer Graphics World.
+ 
+(2) A technical reference on X is:
+James Gettys, Ron Newman, and Tony Della Fera,
+"Xlib - C Language X Interface Protocol Version 10", MIT (1986).
+ 
+(3) For information about SUNWINDOWS, there are two manuals written by
+Sun Microsystems: "Windows and Window Based Tools", and "Sun View
+Programmers's Guide."
+ 
+
+SEE COMMANDS:
+ENDDEVICES, SGF
+
+LATEST REVISION:
+Dec 23, 1997 (Version 0.56a)

@@ -1,0 +1,12 @@
+*
+* PURPOSE:  To test all (most? many?) of the SAC commands.
+*
+* ARGUMENTS: <graphics_device> <results_directory> <data_directory>
+*
+$default 1 sgf
+$default 2 ../results/
+$default 3 ../data/
+macro executive $1$ $2$ $3$
+macro datafile $1$ $2$ $3$
+macro graphics $1$ $2$ $3$
+quit

@@ -1,0 +1,63 @@
+
+SAC Command Reference Manual                                   WINDOW
+
+SUMMARY:
+Sets the location and shape of graphics windows.
+
+SYNTAX:
+WINDOW n {XSIZE xwmin xwmax} {YSIZE ywmin ywmax}
+
+INPUT:
+      n  :  The graphics window number of interest.  There are a total of five
+          graphics windows.  
+
+      X xwmin xwmax  :  Set the x (horizontal) location of graphics window n
+          on the screen.  xwmin is the location of the left edge of the window
+           and xwmax is the location of the right edge.  The range of these
+          screen coordinates is 0.0 to 1.0.  
+
+      Y ywmin ywmax  :  Set the y (vertical) location of graphics window n on
+          the screen.  ywmin is the location of the bottom edge of the window
+           and ywmax is the location of the top edge.  The range of these
+          screen coordinates is 0.0 to 1.0.
+ 
+Default Graphics Window Locations
+ 
+n  xwmin  xwmax  ywmin  ywmax  
+1  0.05   0.85   0.05   0.60   
+2  0.07   0.87   0.07   0.62   
+3  0.09   0.89   0.09   0.64   
+4  0.11   0.91   0.11   0.66   
+5  0.13   0.93   0.13   0.68   
+ 
+
+DESCRIPTION:
+      Many of the newer graphics terminals and workstations support the
+concept of multiple "windows".  Different jobs or activities can run in each
+window and display their results on the screen at the same time.  "X-windows"
+and "Sun windows" are two of the more popular systems currently available. 
+If you are using a device that supports one of these systems, then you can
+use multiple graphics windows in SAC to display your results.  If you are not
+using such a device, SAC will accept but ignore all commands that refer to
+multiple graphics windows.
+      There are two commands that control the use of this multi-windowing
+option.  The WINDOW command lets you control the location and shape of the
+graphics windows.  The BEGINWINDOW command lets you select the window in which
+to display subsequent plots.  BEGINWINDOW will create the requested window if
+it does not currently exist on your display.  The WINDOW command only works
+BEFORE the window is created.  On most systems you can also move and resize
+these windows dynamically using the mouse and pop-up menus.  Generally but not
+always (you should check for yourself), the moving of a window will result in
+the current plot being automatically redrawn whereas the resizing of a window
+results in the current plot being redrawn but not rescaled.  The next plot in
+a resized window will be scaled correctly.
+
+EXAMPLES:
+To set the y (vertical) location of window 3 without modifying the x 
+(horizontal) location:
+ 
+      u:  WINDOW 3 Y 0.1 0.9
+ 
+
+LATEST REVISION:
+May 15, 1987 (Version 10.2) Graphics Window Location on a Screen

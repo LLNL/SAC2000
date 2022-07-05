@@ -1,0 +1,14 @@
+
+SAC Command Reference Manual                                     YLIN
+
+SUMMARY:
+Turns on linear scaling for the y axis.
+
+SYNTAX:
+YLIN
+
+DEFAULT VALUES:
+Linear scaling.
+
+LATEST REVISION:
+January 8, 1983 (Version 8.0)

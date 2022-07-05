@@ -1,0 +1,47 @@
+*
+* PURPOSE:  To provide a short introductory demo to SAC.
+*
+* ARGUMENTS: device times mode data
+*   device: graphics device for plots. Default is xwindows.
+*   times:  number of times to run macro. Default is 1.
+*   mode:   mode to run macro:
+*           = "interactive" in which demo pauses at appropriate 
+*             spots.  Hit <return> to continue.
+*           = "automatic" in which demo pauses for 10 seconds at
+*             each spot but then automatically continues.
+*           Default is "interactive".
+*   data:   Name of subdirectory where demo data is stored.
+*           Default is "data" subdirectory.
+*
+$default 1 xwindows
+$default 2 1
+$default 3 interactive
+$default 4 ../data/
+*
+do loop from 1 to $2$
+  begindevices $1$
+  echo off
+  gtext software font 1
+  message ' '
+  message 'SAC [Seismic Analysis Code] is an interactive program designed'
+  message 'for the study of sequential signals, especially time-series data.'
+  message 'Emphasis as been placed upon analysis tools used by research'
+  message 'seismologists in the detailed study of seismic events.'
+  message ' '
+  if (substring 1 1 $3$) eq a
+    message ' '
+    message 'THIS DEMO RUNS AUTOMATICALLY AND LASTS ABOUT 5 MINUTES.'
+    message ' '
+    pause period 10 message ' '
+  else
+    pause period off message '[Waiting]'
+  endif
+  window 1 y .01 .55
+  echo on
+  macro read $4$
+  macro plot $4$
+  macro filter $4$
+  pause
+  echo off
+  enddevices $1$
+  enddo

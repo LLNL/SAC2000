@@ -1,0 +1,8 @@
+$keys dir
+$default dir .
+do station list elk knb lac mnv
+  do comp list z n e
+    read alpha $dir$/$station$_$comp$.alpha 
+    write ../../misc/datagen/regional/$station$.$comp$
+    enddo
+  enddo

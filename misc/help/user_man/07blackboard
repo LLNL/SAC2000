@@ -1,0 +1,152 @@
+SAC2000 User's Manual
+
+
+Accessing Blackboard Variables In Home Grown Software
+
+
+Overview
+The blackboard is a feature that can be used to temporarily store and retrieve
+information while inside SAC2000.
+Blackboard variables can also be saved in a disk file using the  WRITEBBF
+command and later restored into SAC2000 using the  READBBF command.
+There are four functions in the sac.a library which allow the user to
+read and write blackboard variables in home grown software.  There is also
+a function called UNSETBBV which deletes a variable from the blackboard.  
+The sac.a library is available on the SAC ftp site.  (Note:  On the DEC Alpha,
+sac.a is broken in to two libraries:  sac.a and sac2.a, both are necessary.)
+
+
+Blackboard variables in SAC2000
+A blackboard entry consists of a name and a value.
+Blackboard entries are created using the  SETBB and  EVALUATE commands.
+The value of a blackboard variable can be obtained using the  GETBB command.
+You can also substitute the value of a blackboard variable directly in other
+commands by preceeding its name with a percent sign (``%'') as shown below:
+
+
+        u:  SETBB C1 2.45
+        u:  SETBB C2 4.94
+        u:  BANDPASS CORNERS %C1 %C2
+
+
+Now lets see how blackboard variables can be used in macros.
+In the following example, the first value is a variable, and the other values
+are calculated from the first:
+
+        $KEYS FILES VALUE1
+        $DEFAULT VALUE1 4
+        READ $FILES
+        EVALUATE TO VALUE2 $VALUE1 * 2
+        EVALUATE TO VALUE3 %VALUE2 + 1
+        MUL $VALUE1 %VALUE2 %VALUE3
+        FFT
+        BG SGF
+        PSP AM
+
+You can append or prepend any text string to a blackboard variable.  
+To prepend simply concatenate the text string with the variable.
+To append you must repeat the delimiter (%) after the variable and before
+the text string.
+
+Examples:
+Assume that the blackboard variable TEMP has the value ``ABC''.
+Then value of ``XYZ%TEMP'' would be ``XYZABC'' and
+the value of ``%TEMP%XYZ'' would be ``ABCXYZ''.
+
+More information on the use of blackboard variables in SAC macros is given
+in the section on SAC macros.
+
+
+Blackboard I/O in SAC2000
+There are four SAC commands which are used to read and write blackboard 
+variables and to set and get blackboard variable values.  These are READBBF,
+WRITEBBF, GETBBV, and SETBBV.  These are SAC commands which can be called
+at the SAC prompt or within a SAC macro.  For details, use the HELP command.
+
+
+Blackboard I/O in your own C or FORTRAN programs
+The SAC library sac.a (on the DEC Alpha there are two: sac.a and sac2.a) which
+is available on the SAC2000 ftp site, contains five blackboard I/O routines 
+which you can call within your home grown C or FORTRAN programs.  
+These routines:  read the blackboard variable files (READBBF), write blackboard
+variable files (WRITEBBF), get the current values of blackboard variables
+(GETBBV), set new values of blackboard variables (SETBBV), and delete a 
+variable from the blackboard (UNSETBBV).  
+
+An Example
+The following is a short FORTRAN program that reads in a blackboard
+variable file gets the values of a few variables, sets the value of a new
+one, and then writes the file back to disk:
+
+	PROGRAM BBEXAMPLE
+
+	CHARACTER KSTRING*(80), KTEMP*(16)
+	CALL READBBF('bbfile',NERR)
+	CALL GETBBV('STRING',KSTRING,NERR)
+	CALL GETBBV('VALUE',KTEMP,NERR)
+	READ(KTEMP,'(G16.5)')VALUE
+	CALL DOSOMETHING(KTEMP,VALUE,RESULT)
+	WRITE(KTEMP,'(G16.5)')RESULT
+	CALL SETBBV('RESULT',KTEMP,NERR)
+	CALL WRITEBBF('bbfile',NERR)
+	END
+
+
+The values of all blackboard variables are stored as character strings.
+Line 2 defines two character variables that are used in accessing these
+blackboard variables.
+Line 3 reads in a file called ``bbfile''. Lines 4 and 5 access two variables
+from that file, one called ``STRING'' and one called ``VALUE''.
+The first is stored in the character variable ``KSTRING'' and the second in 
+``KTEMP''.
+Line 6 converts ``KTEMP'' to a floating point number and stores it in ``VALUE''.
+You must do this kind of conversion if you want to use a blackboard variable 
+as a floating point or integer number in your program.
+Line 7 calls a subroutine which performs some calculation using these
+two variables and returns a floating point result.
+Line 8 converts this result into a character variable and line 9 stores it in
+the blackboard using the name ``RESULT''.
+Line 10 writes the blackboard back to disk in the same file.
+
+
+Special Note
+The names of blackboard variables are converted to uppercase before being
+stored or retrieved.
+This means that you can use either uppercase or lowercase in your program.
+However, the name of the blackboard variable file must be given exactly as
+it appears on disk.  No case conversion is done on file names.
+
+Also, when compiling/linking your code, it may be necessary to include 
+'-lX11 -lm' on the compile/link line in order to access the X windows and
+math libraries respectively.  
+
+
+Below is a C program which performs the same functions as the FORTRAN program
+above.  
+
+#include <stdio.h>
+#include <stdlib.h>
+
+main ()
+{
+    float result , value ;
+    long int nerr ;
+    char kstring[ 81 ] , ktemp[ 17 ] ;
+
+    readbbf ( "bbfile" , &nerr , 6 ) ;
+    getbbv ( "string" , kstring , &nerr , 6 , 80 ) ;
+    getbbv ( "value" , ktemp , &nerr , 5 , 16 ) ;
+    value = atof ( ktemp ) ;
+    result = dosomething ( ktemp, value ) ;
+    sprintf ( ktemp , "%16.5g" , result ) ;
+    setbbv ( "result" , ktemp , &nerr , 6 , 16 ) ;
+    writebbf ( "bbfile" , &nerr , 6 ) ;
+}
+
+
+Notice that in C, more parameters are required in the function calls than 
+in FORTRAN.  This is because unlike C, FORTRAN implicitly passes string length 
+specifiers for each string in the parameter list.  These specifiers are at the 
+end of the parameter list, and are declared as INTEGER*4 or long int.  
+Notice also that the values passed as string length specifiers do not include
+the null termintor '\0'.

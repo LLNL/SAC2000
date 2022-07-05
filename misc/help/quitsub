@@ -1,0 +1,24 @@
+
+SAC Command Reference Manual                                  QUITSUB
+
+SUMMARY:
+Terminates the currently active subprocess.
+
+SYNTAX:
+QUITSUB
+
+DESCRIPTION:
+This command terminates the currently active subprocess, returning to the
+main SAC command environment. Files in memory are retained.  There are
+currently two subprocesses available in SAC:
+ 
+SES Spectral Estimation Subproess
+ 
+SSS Signal Stacking Subprocess
+ 
+
+SEE COMMANDS:
+SES, SSS
+
+LATEST REVISION:
+October 11, 1984 (Version 9.1)

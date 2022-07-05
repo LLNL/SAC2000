@@ -1,0 +1,17 @@
+
+SAC Command Reference Manual                                   LINLIN
+
+SUMMARY:
+Turns on linear scaling for the x and y axes.
+
+SYNTAX:
+LINLIN
+
+DEFAULT VALUES:
+Linear scaling for both axes.
+
+SEE COMMANDS:
+LINLOG, LOGLOG, LOGLIN
+
+LATEST REVISION:
+January 8, 1983 (Version 8.0)

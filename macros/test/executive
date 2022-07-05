@@ -1,0 +1,31 @@
+*
+* Purpose: To test the SAC commands in the executive module.
+*
+transcript create file $2$executive.trans content all
+wait text off
+report memory
+report devices
+funcgen impulse npts 51
+listhdr
+datagen sub regional *.z
+listhdr columns 2
+message 'Test of SAC message command'
+news
+help news
+syntax news
+setbb a 1.0
+setbb b 5.0
+setbb c 'this is a test of SAC blackboard'
+getbb
+setbb d (%a% / %b%)
+setbb e "(before " blackboard" "(after a "%c%")")"
+getbb d e
+unsetbb a b
+getbb all
+setbb f 10.0
+trace on c f
+setbb f (%f% / 2.0)
+unsetbb c
+getbb
+trace off c f
+transcript close file $2$executive.trans

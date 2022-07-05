@@ -1,0 +1,109 @@
+TRAVELTIME
+
+SUMMARY:      Computes travel-time curves for pre-defined models or 
+              reads travel-time curves from ascii text files.  
+
+NOTE:         Can be called only from within the SSS subprocess.
+
+SYNTAX:
+1.  TRAVELTIME [MORE] [MODEL [string] ] [DEPTH depth] [BB fnum vname]
+               [PICKS [n] ] [PHASE phaselist]
+
+2.  TRAVELTIME [MORE] [DIR CURRENT|name] [UNITS DEGREES|KM] [HEADER count]
+               [CONTENT string] [PICKS [n] ] filelist
+
+3.  TRAVELTIME [DIR CURRENT|name] [PICKS [n] ] TAUP filename
+
+the first syntax runs a model (for now iasp91 is the only available model),
+the second syntax reads collumn data, and the third syntax reads the output of 
+taup_curve (a traveltime estimator by Philip Crotwell at the University of 
+South Carolina, for details see http://www.seis.sc.edu/software/index.html).  
+
+INPUT:  
+        MORE           signifies addition of more phases (syntax 1) or 
+                       files (syntax 2) to current traveltime curves rather
+                       than replacement of the current list with the new one. 
+        MODEL string   to select the model to use to calculate the
+                       travel times.  Currently iasp91 is the only available
+                       model.
+        DEPTH depth    Depth at which to produce curves (floaing point number)
+        BB fnum vname  store a time in a blackboard variable.
+                       fnum is an integer specifying the filenumber of a file
+                       in SAC's memory.
+                       The time of the first phase in the phase list for
+                       the specified file is stored in the black board variable
+                       specified by the string vname.
+                       In case of a null value, the blackboard variable
+                       will take the value -12345.0
+        PICKS n        fills the arrival header fields with the appropriate
+                       times.  n specifies the first arrival field to use.
+                       For example, if n is 6, the first phase will be written
+                       in T6, the second in T7, the third in T8 and the fourth
+                       in T9.  In this case, the fifth and subsequent phases
+                       will not be written to header fields, but the curves
+                       will be displaied with the PLOTRECORDSECTION command if
+                       the TTIME option is ON.  
+        PHASE          the rest of the parameter on the command line are a
+                       list of phase names
+        DIR CURRENT | name    
+                       set the name of the default subdirectory from which to 
+                       read either collumn or taup files. 
+        UNITS degrees/kilometers
+                       select units of travel time curves.
+                       Defaults to kilometers.
+        HEADER         count set number of lines to skip at the beginning of
+                       the file of collumn data.
+        CONTENT string see below.
+        filelist       define a new list of files of collumn data (or add to
+                       old filelist).
+                       The maximum number of rows in a file is 500.
+        TAUP           reads the output of taup_curve
+        filename       name of a file which is in the format of the output
+                       of taup_curve.  
+
+
+
+DEFAULT VALUES:  traveltime model iasp91 phase P S Pn Pg Sn Sg 
+
+DESCRIPTION
+This command reads travel-times from file or computes them from a pre-specified model.  
+The resulting travel time curves can be plotted on top of a record section plot 
+using the PLOTRECORDSECTION command.  
+Currently the only model supported is the 1991 iaspei model.  
+The second listed syntax (which reads collumn data) take an optional parameter:
+CONTENT.  
+
+The content field is used to determine how to interperet each collumn.
+Each specific character in the content string represents a data element
+and the order of these characters mimics the order of the data in each
+line of the file.  The meanings of the allowed characters in the content
+field are given below:
+
+T = Next collumn is time in seconds (dependent variable).
+
+D = Next collumn is distance (units specified by the UNITS option)
+    (independent variable).
+
+N = Next collumn is time in seconds.
+
+P = Next pair of entries belong to D and T data sets.
+
+R = Next pair of entries belong to T and D data sets.
+
+I = Ignore (skip) this data element.
+
+An optional repetition count may follow any of the above characters.  This
+repetition count is a one or two digit integer and has the same meaning as
+repeating the content character that number of times.  A period (``.'') is an
+infinite repetition count and means use the last characters meaning to decode
+the remaining data elements in the line.  The period can only appear at the
+end of a content field.
+
+Note:  a given collumn data file can only have one distance collumn read.
+
+
+See Commands:  
+  PLOTRECORDSECTION
+
+LATEST REVISION:
+April 29, 1999 (Version 0.58)

@@ -1,0 +1,93 @@
+
+SAC Command Reference Manual                                  COMMAND
+
+SUMMARY:
+Command Summary
+
+SYNTAX:
+BOLDOVERSCOREREGULAR [italics]
+where options is one or more of the following:
+ 
+OPTION
+OPITON INFO | italic
+ 
+ALL options MUST preceed any element in the filelist.
+
+INPUT:
+      TOKEN  :  Token text info.  
+
+      Next token info.   : 
+
+DEFAULT VALUES:
+READ DIR CURRENT
+
+DESCRIPTION:
+      Intented mode material.
+      Another indented paragraph
+ 
+(1) A numerated item.
+ 
+(2) And another numerated item.
+With accompanying info.
+ 
+A non indented text line following the items.
+      First paragraph of a new page.
+ 
+ITEM: An item indented 4 levels.
+ 
+And another item.  With accompanying text info.
+ 
+Text with no indentation following indented items.
+
+EXAMPLES:
+      First paragraph of an examples section.
+ 
+      u: A user typed example.
+ 
+      Text that lines up below the example.
+ 
+ 
+      u: User types this
+ 
+      s: System responds with this
+ 
+      s: System responds with this
+ 
+      Text lines up below.
+ 
+      u: user types this.
+ 
+      Text below.
+ 
+      Text below.
+ 
+
+ERROR MESSAGES:
+1301: No data files read in.
+
+- haven't given a list of files to read.  - none of the files in the list
+could be read.
+1302: Maximum memory size exceeded.
+
+1303: Overwrite flag is not on for file
+
+The "PAGE X" command draws a line at the bottom the previous page.
+
+WARNING MESSAGES:
+0101: opening file
+
+0102: creating file
+
+- Normally when SAC encounters one of these errors it skips that file and
+reads the remainder.  These errors can be made to be fatal using the READERR
+command.
+
+HEADER CHANGES:
+Header variables that change go here.  E, DEPMIN, DEPMAX, DEPMEN, B if cut
+option is on.
+
+SEE COMMANDS:
+OTHER COMMANDS TO SEE GO HERE
+
+LATEST REVISION:
+Month dd, yyyy (Version nn.c)

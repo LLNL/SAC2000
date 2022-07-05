@@ -1,0 +1,53 @@
+
+SAC Command Reference Manual                                   READSP
+
+SUMMARY:
+Reads spectral files written by WRITESP and WRITESPE.
+
+SYNTAX:
+READSP {AMPH|RLIM|SPE} {filelist}
+
+INPUT:
+      RLIM  :  Read real and imaginary components.  
+
+      AMPH  :  Read amplitude and phase components.  
+
+      SPE  :  Read spectral estimation subprocess files.  The data is
+          converted from power to amplitude.  The phase component is set to
+          zeros.  
+
+      filelist  :  A list of SAC binary data files.  This list may contain
+          simple filenames, full or relative pathnames, and wildcard
+          characters.  See the READ command for a complete description.
+
+DEFAULT VALUES:
+READSP AMPH
+
+DESCRIPTION:
+The WRITESP command writes each spectral data component to disk as a separate
+file.  You may then process each component separately.  This command lets you
+reconstruct the spectral data from the two components.  See the WRITESP
+documentation for more details.  The SPE option allows you to read in and
+convert to spectral format, files that were written using the WRITESPE
+command in the Spectral Estimation Subprocess. This allows you to use
+commands such as MULOMEGA and DIVOMEGA on these spectral estimates.
+
+      Any command which loads data into memory is monitored to maintain a
+level of confidence in the event infomation when transfered from the SAC
+data buffer to the CSS data buffer.  When READSP is used, the confidence
+is set to LOW, indicating that SAC should consider any matching event IDs
+as artifacts and reassign the event ID of the incoming file.  For more 
+details, use HELP READ.
+
+
+EXAMPLES:
+See the example in the WRITESP documentation.
+
+SEE COMMANDS:
+WRITESP
+
+
+REFERENCES: Spectral Estimation Subprocess Manual
+
+LATEST REVISION:
+April 21, 1989 (Version 10.4c)

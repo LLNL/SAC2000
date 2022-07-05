@@ -1,0 +1,58 @@
+
+SAC Command Reference Manual                                 CONVOLVE
+
+SUMMARY:
+Compute the convolution of a master signal with itself and 
+one or more other signals.
+
+SYNTAX:
+CONVOLVE  {MASTER name|n},
+{NUMBER n},{LENGTH ON|OFF|v},
+{TYPE  RECTANGLE|HAMMING|HANNING|COSINE|TRIANGLE}
+
+INPUT:
+      MASTER name|n  :  Select master file in data file list by name or
+          number.  All files will be correlated against this one.  
+
+      NUMBER n  :  Set number of correlation windows to be used.  
+
+      LENGTH {ON}  :  Turn fixed window length option on.  
+
+      LENGTH OFF  :  Turn fixed window length option off.  
+
+      LENGTH v  :  Turn fixed window length option on and change window
+          length in seconds to v.  
+
+      TYPE RECTANGLE  :  Apply a rectangle function to each window.  This is
+          equivalent to applying no function to each window.  
+
+      TYPE HAMMING  :  Apply a hamming function to each window.  
+
+      TYPE HANNING  :  Apply a hanning function to each window.  
+
+      TYPE COSINE  :  Apply a cosine function to each window.  
+
+      TYPE TRIANGLE  :  Apply a triangle function to each window.
+
+DEFAULT VALUES:
+CONVOLVE MASTER 1 NUMBER 1 LENGTH OFF TYPE RECTANGLE
+
+DESCRIPTION:
+      The convolve command allows the user to convolve a master signal with 
+itself and one or many other signals.  This command computes convolution, as
+approximated by  cv(tau) = int ( f(t) g(tau - t) ) dt, where int means
+summation over all time points with nonzero overlap.  There is no 1/N
+normalization.  This is very similar to cross correlation which is defined by:
+cc(tau) = int ( f(t) g(t + tau) ) dt.   Syntax and output are similar to that
+of the CORRELATE command, except that the cross-correlation waveform is
+replaced by the convolution waveform.
+
+HEADER CHANGES:
+DEPMIN, DEPMAX, DEPMEN
+
+
+ACKNOWLEDGEMENTS: This command is based on an algorithm developed by Dave
+Harris.
+
+LATEST REVISION:
+Dec. 4, 1996 (Version 52a)

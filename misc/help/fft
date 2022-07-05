@@ -1,0 +1,61 @@
+
+SAC Command Reference Manual                                      FFT
+
+SUMMARY:
+Performs a discrete Fourier transform.
+
+SYNTAX:
+FFT {WOMEAN|WMEAN},{RLIM|AMPH}
+
+INPUT:
+      WOMEAN  :  Remove mean before transform.  
+
+      WMEAN  :  Leave mean in transform.  
+
+      RLIM  :  Output should be in real-imaginary format.  
+
+      AMPH  :  Output should be in amplitude-phase format.
+
+ALTERNATE FORMS:
+Purists may use DFT in place of FFT.
+
+DEFAULT VALUES:
+FFT WMEAN AMPH
+
+DESCRIPTION:
+Before the transform is performed, each data file is padded with zeros to the
+next power of two.  SAC data files, on disk and in memory, can contain either
+time-series data or spectral data.  The spectral data may be in either
+amplitude-phase format or real-imaginary format.  The IFTYPE field in the
+header tells you which kind of data is stored in a particular file and what
+its format is.  Most commands work on only one type, either time-series or
+spectal.  Certain commands such as FFT, IFFT, UNWRAP, etc. change data in 
+memory from one data type or format to another.  See the Users Manual for more
+information on SAC data types.  The spectral files that result from this
+command can be plotted using the PLOTSP command or saved on disk with the
+WRITE or WRITESP command.
+
+HEADER CHANGES:
+B, E, and DELTA are changed to the beginning, ending and sampling frequencies
+of the transform respectively.  The original values of B, E, NPTS and DELTA
+are saved as SB, SE, NSNPTS and SDELTA and are restored if an inverse
+transform is done.
+
+ERROR MESSAGES:
+1301: No data files read in.
+
+1306: Illegal operation on unevenly spaced file
+
+1307: Illegal operation on spectral file
+
+1606: Maximum allowable DFT is
+
+
+LIMITATIONS:
+The maximum transform is 65536 data points.
+
+SEE COMMANDS:
+PLOTSP, IFFT, WRITESP
+
+LATEST REVISION:
+March 20, 1992 (Version 10.6e)

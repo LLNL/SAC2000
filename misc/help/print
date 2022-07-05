@@ -1,0 +1,33 @@
+
+SAC Command Reference Manual                                    PRINT
+
+SUMMARY:
+Prints the most recent SGF file.  This command requires that at least
+one SGF file has been produced.  
+
+SYNTAX:
+PRINT {printer}
+
+INPUT:
+      printer  :  sends output to the named printer, if no printer name is
+                  supplied, it will print to the system's default printer.
+
+Note:  PRINT will not work if the SGF device has remained off since boot.
+       Use BEGINDEVICES to turn on the SGF device.  Use the SGF command
+       to set prefered behavior for the SGF device. 
+       The SGF command has an overwrite option which prevents disk file
+       buildup by clobbering previous SGF files with the new ones.
+
+DEFAULT VALUES:
+PRINT
+
+
+ERROR MESSAGES:
+2405: Cannot PRINT:  no SGF files produced.
+
+
+SEE COMMANDS:
+SGF, BEGINDEVICES
+
+LATEST REVISION:
+April 22, 1999 (Version 0.58)

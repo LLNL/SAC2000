@@ -1,0 +1,622 @@
+SAC2000 User's Manual
+
+
+Reading And Writing SAC Data Files In Home Grown Software
+
+
+Overview
+You can write your own stand-alone codes in C or FORTRAN and use SAC2000
+library routines to handle I/O of SAC formated data files.  The library is
+called sacio.a, and is available on the SAC ftp site.
+
+
+/***********************************************************************/
+
+Note:  when compiling/linking your code, it may be necessary to include 
+'-lX11 -lm' on the compile/link line in order to access the X windows and
+math libraries respectively. 
+
+/***********************************************************************/
+
+
+There are two routines in the SAC library that you can use to read
+SAC data files into your C or FORTRAN program:
+RSAC1 reads evenly spaced files
+RSAC2 reads unevenly spaced and spectral files.
+
+There is a set of routines that let you get the
+values of header variables after the file has been read:
+GETFHV gets float or REAL header variables
+GETIHV gets character strings enumerated as int or INTEGER header variables
+GETKHV gets character string header variables
+GETLHV gets LOGICAL header variables (declared as long in C)
+GETNHV gets int or INTEGER header variables.
+
+There is a like set of routines that let you set the values of header
+variables currently in memory:
+SETFHV sets float or REAL header variables
+SETIHV sets character strings enumerated as int or INTEGER header variables
+SETKHV sets character string header variables
+SETLHV sets LOGICAL header variables (declared as long in C)
+SETNHV sets int or INTEGER header variables.
+
+There are three routines used to write SAC data files to disk:
+WSAC1 writes evenly spaced files
+WSAC2 writes unevenly spaced and spectral files
+WSAC0 writes more comprehensive header files than the other two (it requires
+        the use of the next routine: NEWHDR).
+
+Finally, there is a routine called NEWHDR which initializes a SAC header to
+undefined values.  This is used in conjunction with WSAC0.
+
+FORTRAN call statements and C prototypes of these routines are documented in
+the appendix.
+
+A few examples are given below, including explainations.
+
+RSAC1  FORTRAN
+-----
+
+        PROGRAM RSAC
+        PARAMETER (MAX=1000)
+        DIMENSION YARRAY(MAX)
+        CHARACTER*10 KNAME
+        KNAME='FILE1'
+        CALL RSAC1(KNAME,YARRAY,NLEN,BEG,DEL,MAX,NERR)
+        IF(NERR.GT.0)GO TO 8888
+        CALL DOIT(YARRAY,NLEN)
+8888    CONTINUE
+        END
+
+
+Line 2 defines the maximum size of the data array.
+Lines 4 and 5 define the name of the data file to be read.
+This name must be a blank filled character variable.
+Line 6 calls RSAC1, which opens the file, reads the header,
+copies the data to the data array, and closes the file.
+RSAC1 also passes back the number of points read, the begin
+time, and the sampling interval.
+Line 8 calls your own subroutine to process this data
+in some fashion (otherwise why are we doing this at all!)
+
+
+Error Checking
+Line 7 checks the error return flag to make sure the data was read properly.
+Most SAC subroutines contain this error return flag and all of
+them follow the same convention.
+The flag is zero if no error occurred, positive if a fatal error occurred
+that prevented sucessful completion, and negative if a warning
+condition occurred for which corrective action was taken.
+For example, if FILE1 does not exist, NERR is set to 108 and RSAC1
+returns immediately.
+On the other hand, if the number of points in the file was larger than the
+maximum size of the passed array, RSAC1 takes corrective action by reading
+only the first MAX points from the file and warns you by setting NERR to -803.
+(This is why you need to pass the maximum array size to RSAC1.)
+In this example, we are not concerned about warning conditions,
+so we only check for a positive NERR.
+You will have to decide how you want to handle the various error
+conditions that can occur in your own programs.
+
+
+RSAC1  C
+-----
+
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX 1000
+
+main()
+{
+    float yarray[ MAX ] , beg , del ;
+    int nlen , nerr , max = MAX ;
+    char kname[ 11 ] ;
+
+    strcpy ( kname , "FILE1" ) ;
+    rsac1( kname, yarray, &nlen, &beg, &del, &max, &nerr, strlen( kname ) ) ;
+    if ( nerr > 0 )
+        exit ( nerr ) ;
+    doit ( yarray , nlen ) ;
+}
+
+
+Notice that in the call to rsac1, there is an extra parameter after nerr.
+This is the string length specifier which specifies the length of the
+string kname.  The length of the string does not include a null terminator.
+Note also that all of the parameters are passed by reference
+execpt the string length specifier.
+
+
+
+
+RSAC2  FORTRAN
+-----
+
+        PROGRAM RSAC
+        PARAMETER (MAX=3000)
+        DIMENSION XARRAY(MAX), YARRAY(MAX)
+        CHARACTER*10 KNAME
+        KNAME='FILE2'
+        CALL RSAC2(KNAME,YARRAY,NLEN,XARRAY,MAX,NERR)
+        IF(NERR.GT.0)GO TO 8888
+        CALL DOMORE(XARRAY,YARRAY,NLEN)
+8888    CONTINUE
+        END
+
+
+There are only a few changes from the first example.
+Line 3 defines two arrays, instead of one.
+In line 6 there is one less argument to RSAC2 than RSAC1,
+the begin time and sampling interval being replacd by the x array.
+
+
+RSAC2  C
+-----
+
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX 3000
+
+main()
+{
+    float xarray[ MAX ] , yarray[ MAX ] , beg , del ;
+    int nlen , nerr , max = MAX ;
+    char kname[ 11 ] ;
+
+    strcpy ( kname , "FILE2" ) ;
+    rsac2( kname , yarray , &nlen , xarray , &max , &nerr , strlen( kname ) ) ;
+    if ( nerr > 0 )
+        exit ( nerr ) ;
+    domore ( xarray , yarray , nlen ) ;
+}
+
+
+
+
+Header Access Functions  FORTRAN
+-----------------------
+
+        PROGRAM RSAC
+        PARAMETER (MAX=1000)
+        DIMENSION YARRAY(MAX)
+        CHARACTER*10 KNAME
+        KNAME='FILE1'
+        CALL RSAC1(KNAME,YARRAY,NLEN,BEG,DEL,MAX,NERR)
+        IF(NERR.GT.0)GO TO 8888
+        CALL GETFHV('DELTA',DELTA,NERR)
+        IF(NERR.GT.0)GO TO 8888
+        CALL GETFHV('B',B,NERR)
+        IF(NERR.GT.0)GO TO 8888
+        CALL GETFHV('T1',T1,NERR)
+        IF(NERR.GT.0)GO TO 8888
+        CALL GETFHV('T2',T2,NERR)
+        IF(NERR.GT.0)GO TO 8888
+        N1=INT((T1-B)/DELTA)
+        N2=INT((T2-B)/DELTA)
+        CALL DOPART(YARRAY(N1),N2-N1+1)
+8888    CONTINUE
+        END
+
+
+After the call to RSAC1 in line 6, the header variables for FILE1
+will be stored in a common block.
+The calls to GETFHV in lines 8 through 15 get the four floating
+point header variables, DELTA, B, T1, and T2.
+There are two error numbers that can come back from these calls.
+Error 1336 means that the header variable name is legal but not defined
+for this file.
+Error 1337 means that a header variable with that name does not exist.
+Lines 16 and 17 use the variables from these calls to compute a small piece
+of the data to be passed to DOPART in line 18 for processing.
+Other subroutines used to access the header are GETIHV,
+GETKHV, GETLHV, and GETNHV. These routines are described above and in the
+appendix.  The section on SAC data file format lists header variables by
+type.
+
+
+Header Access Functions  C
+-----------------------
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX 1000
+
+main()
+{
+    long int max = MAX , nlen , nerr ;
+    int  N1 , N2 ;
+    float yarray[ MAX ] , beg , del , delta , B , T1 , T2 ;
+    char kname[ 11 ] ;
+
+    strcpy ( kname , "FILE1" ) ;
+    rsac1( kname, yarray, &nlen, &beg, &del, &max, &nerr, strlen( kname ) ) ;
+    if ( nerr > 0 ) exit ( nerr ) ;
+    getfhv ( "DELTA" , &delta , &nerr , 5 ) ;
+    if( nerr > 0 ) exit ( nerr ) ;
+    getfhv ( "B" , &B , &nerr , 1 ) ;
+    if ( nerr > 0 ) exit ( nerr ) ;
+    getfhv ( "T1" , &T1 , &nerr , 2 ) ;
+    if ( nerr > 0 ) exit ( nerr ) ;
+    getfhv ( "T2" , &T2 , &nerr , 2 ) ;
+    if ( nerr > 0 ) exit ( nerr ) ;
+    N1 = (int) ( ( ( T1 - B ) / delta ) + 0.5 ) ;
+    N2 = (int) ( ( ( T2 - B ) / delta ) + 0.5 ) ;
+    dopart ( yarray + N1 , N2 - N1 + 1 ) ;
+}
+
+WSAC1  FORTRAN
+-----
+
+        PROGRAM WSAC
+        PARAMETER (MAX=200)
+        DIMENSION YFUNC(MAX)
+        CHARACTER*10 KNAME
+        KNAME='EXPDATA'
+        BEG=0.
+        DEL=0.02
+        X=BEG
+        DO 1000 J=1,MAX
+        YFUNC(J)=EXP(-X)
+1000    X=X+DEL
+        CALL WSAC1(KNAME,YFUNC,MAX,BEG,DEL,NERR)
+        END
+
+
+Lines 4 and 5 define the name of the file to be written and like
+RSAC1 and RSAC2 this name must be a blank filled character variable.
+Lines 6 through 11 define and create the function.
+Line 12 calls WSAC1 which writes the data to disk.
+A minimum header is created, containing only those variables needed
+to be able to read the file:  B, E, DELTA, LEVEN, and NPTS.
+The calling sequence for WSAC1 is very similiar but not identical
+to that for RSAC1.
+
+
+WSAC1  C
+-----
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#define MAX 200
+
+main()
+{
+    int max = MAX , j , nerr ;
+    float yfunc[ MAX ] , x , beg = 0. , del = 0.02 ;
+    char kname[ 10 ] ;
+
+    strcpy ( kname , "EXPDATA" ) ;
+    for ( j = 0 , x = beg ; j < MAX ; j++ , x += del )
+        yfunc[ j ] = exp ( -x ) ;
+    wsac1 ( kname , yfunc , &max , &beg , &del , &nerr , strlen ( kname ) ) ;
+}
+
+
+
+WSAC2 FORTRAN
+-----
+
+        PROGRAM WSAC
+        PARAMETER (MAX=300)
+        DIMENSION XDATA(MAX), YDATA(MAX)
+        CHARACTER*10 KNAME
+        KNAME='XYDATA'
+        CONA=12.43
+        CONB=0.02
+        CALL GENDAT(CONA,CONB,MAX,XDATA,YDATA,NLEN)
+        CALL WSAC2(KNAME,YDATA,NLEN,XDATA,NERR)
+        END
+
+
+In lines 6 through 8, x and y data is generated by a function
+called GENDAT based upon the values of two constants.
+This data is written to a file called XYDATA by WSAC2 in line 9.
+Again, WSAC2 writes only a minimum header.
+
+
+WSAC2 C
+-----
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX 300
+
+main()
+{
+    float xdata[ MAX ], ydata[ MAX ] ;
+    float cona = 12.43 , conb = 0.02 ;
+    int max = MAX , nlen , nerr ;
+    char kname[ 11 ] ;
+
+    strcpy ( kname , "XYDATA" ) ;
+    gendat ( cona , conb , max , xdata , ydata , &nlen ) ;
+    wsac2 ( kname , ydata , &nlen , xdata , &nerr , strlen ( kname ) ) ;
+}
+
+
+
+WSAC0
+-----
+
+To create a SAC data file with more information in the
+header than WSAC1 and WSAC2 allow, you need to use a set of
+subroutines that store header variables and then use WSAC0.
+Below are three examples, the first is similar to the
+example for WSAC2.
+
+First Example of WSAC0 - Unevenly Spaced Data  FORTRAN
+---------------------------------------------
+
+        PROGRAM WSAC
+        PARAMETER (MAX=300)
+        DIMENSION XDATA(MAX), YDATA(MAX)
+        CHARACTER*10 KNAME
+        KNAME='XYDATA'
+        CONA=12.43
+        CONB=0.02
+        CALL GENDAT(CONA,CONB,MAX,XDATA,YDATA,NLEN)
+        CALL NEWHDR
+        CALL SETNHV('NPTS',MAX,NERR)
+        CALL SETLHV('LEVEN',.FALSE.,NERR)
+        CALL SETFHV('B',XDATA(1),NERR)
+        CALL SETFHV('E',XDATA(MAX),NERR)
+        CALL SETIHV('IFTYPE','IXY',NERR)
+        CALL SETFHV('USER0',CONA,NERR)
+        CALL SETFHV('USER1',CONB,NERR)
+        CALL SETKHV('KUSER0','GENDAT',NERR)
+        CALL WSAC0(KNAME,XDATA,YDATA,NERR)
+8888    CONTINUE
+        END
+
+
+This example is the same as the one above through line 8.
+The call to NEWHDR in line 9 sets all header fields
+to their default values. Omitting the call to NEWHDR will retain any
+header fields from a previous call to RSAC0 or RSAC1; allowing you to
+read a SAC file, manipulate the data, and write the file out with all
+the original header contents.
+If you are creating more than one file in a program, you can use
+NEWHDR to reset the header to its default state for each file.
+Lines 10 through 17 define some header values for this file.
+All of the header variables, except the auxiliary ones (denoted by an
+A in the appendix) may be set using these subroutine calls.
+Note the use of USER0, USER1, and KUSER0 to store information
+unique to this application.
+No error checking is done after these calls because we know we are
+using the names of legitimate SAC header variables.
+The data file with this header is then written by calling WSAC0 in line 18.
+Note that the calling sequence is significantly
+different for WSAC0 than for WSAC1 and WSAC2.
+If the data had been evenly spaced, the x array could be a dummy array.
+
+
+First Example of WSAC0  C
+----------------------
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX 300
+#define FALSE 0
+#define TRUE  1
+
+main()
+{
+    int max = MAX , nlen , nerr ;
+    float xdata[ MAX ] , ydata[ MAX ] ;
+    float cona = 12.43, conb = 0.02 ;
+    char kname[ 11 ] ;
+    long false = FALSE ;
+
+    strcpy ( kname , "XYDATA" ) ;
+    gendat ( cona , conb , max , xdata , ydata , &nlen ) ;
+    newhdr () ;
+    setnhv ( "npts" , &max , &nerr , 4 ) ;
+    setlhv ( "leven" , &false , &nerr , 5 ) ;
+    setfhv ( "b" , xdata , &nerr , 1 ) ;
+    setfhv ( "e" , xdata + max  , &nerr , 1 ) ;
+    setihv ( "iftype" , "ixy" , &nerr , 6 , 3 ) ;
+    setfhv ( "user0" , &cona , &nerr , 5 ) ;
+    setfhv ( "user1" , &conb , &nerr , 5 ) ;
+    setkhv ( "kuser0" , "gendat" , &nerr , 6 , 6 ) ;
+    wsac0 ( kname , xdata , ydata , &nerr , strlen ( kname ) ) ;
+}
+
+
+Notice that setihv and setkhv each have two character strings in their
+parameter lists.  These two functions also each have two string length
+specifiers at the end of the parameter lists.
+
+
+
+Second Example of WSAC0 - XYZ (3-D) files  FORTRAN
+-----------------------------------------
+
+        PROGRAM WSAC
+        PARAMETER (MAX=36)
+        DIMENSION DUMMY(MAX), ZDATA(MAX)
+        CHARACTER*10 KNAME
+        KNAME='XYZDATA'
+        CALL GENDAT(MAX,YDATA,NLEN)
+        CALL NEWHDR
+        CALL SETNHV('NPTS',MAX,NERR)
+        CALL SETLHV('LEVEN',.TRUE.,NERR)
+        CALL SETIHV('IFTYPE','IXYZ',NERR)
+        CALL SETNHV('NXSIZE',6,NERR)
+        CALL SETNHV('NYSIZE',6,NERR)
+        CALL SETFHV('XMINIMUM', minimum,NERR)
+        CALL SETFHV('XMAXIMUM', maximum,NERR)
+        CALL SETFHV('YMINIMUM', minimum,NERR)
+        CALL SETFHV('YMAXIMUM', maximum,NERR)
+        CALL WSAC0(KNAME,DUMMY,ZDATA,NERR)
+        END
+
+
+Although data in SAC memory is stored in a linear 1-D array,
+think of the Z data as being placed in a 2-D grid, in the order
+left-to-right, bottom-to-top. See the  CONTOUR command for
+additional information.
+
+
+Second Example of WSAC0  C
+-----------------------
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX 36
+#define FALSE 0
+#define TRUE  1
+
+main()
+{
+    int max = MAX , nlen , nerr , six = 6 ;
+    float dummy[ MAX ] , zdata[ MAX ] ;
+    float Xminimum = 7e+05 , Xmaximum = 8.25e+07 ,
+          Yminimum = 0.0 ,   Ymaximum = 2.06e+11 ;
+    char kname[ 11 ] ;
+    long true = TRUE ;
+
+    strcpy ( kname , "XYZDATA" ) ;
+    gendat ( max , zdata , &nlen) ;
+    newhdr () ;
+    setnhv ( "NPTS" , &max , &nerr , 4 ) ;
+    setlhv ( "LEVEN" , &true , &nerr , 5 ) ;
+    setihv ( "IFTYPE" , "IXYZ" , &nerr , 6 , 4 ) ;
+    setnhv ( "NXSIZE" , &six , &nerr , 6 ) ;
+    setnhv ( "NYSIZE" , &six , &nerr , 6 ) ;
+    setfhv ( "XMINIMUM" , &Xminimum , &nerr , 8 ) ;
+    setfhv ( "XMAXIMUM" , &Xmaximum , &nerr , 8 ) ;
+    setfhv ( "YMINIMUM" , &Yminimum , &nerr , 8 ) ;
+    setfhv ( "YMAXIMUM" , &Ymaximum , &nerr , 8 ) ;
+    wsac0 ( kname , dummy , zdata , &nerr , strlen ( kname ) ) ;
+}
+
+Note that for setnhv, the second parameter is the address of
+a variable assigned the value 6 instead of just the value 6.
+This is because all parameters are passed by reference
+except string length specifiers.
+
+
+
+Third Example of WSAC0  The explaination precedes the code.
+----------------------
+
+The following example converts data from a fictitious
+seismic network to SAC data files.
+This network contains seven single component stations and one
+three component station.
+Lines 2 through 6 set up storage for the seismic data and
+define the names of the files.
+Lines 7 through 13 initialize the header and set header variables
+that are independent of the data being converted.
+Lines 14 through 16 query the user for an event identification
+number and then extracts the data from the data base using GETDAT.
+In this example, NDATA is the number of points per component for this
+event, TIME is the epochal time of the beginning of this event,
+and ELAT and ELON are the event latitude and longitude.
+Lines 17 and 18 convert this time to the SAC zero time and
+lines 19 through 25 define some more SAC header fields.
+The loop in lines 26 through 33 define the station coordinates
+and create SAC data files for the 8 vertical components.
+Lines 34 through 38 create the data files for the two horizontal
+components.
+
+Third Example of WSAC0  FORTRAN
+----------------------
+
+        PROGRAM WSACH
+        PARAMETER (MCOMP=9, MDATA=4000)
+        DIMENSION SDATA(MDATA,MCOMP+1)
+        CHARACTER*10 KSTNM
+        CHARACTER KNAME(MCOMP+1)*10
+        DATA KNAME/'STAZ','STBZ','STCZ','STDZ','STEZ',
+     #           'STFZ','STGZ','STHZ','STHN','STHE'/
+        CALL NEWHDR
+        CALL SETIHV('IFTYPE','ITIME',NERR)
+        CALL SETIHV('IDEP','IVEL',NERR)
+        CALL SETIHV('IZTYPE','IB',NERR)
+        CALL SETFHV('B',0.,NERR)
+        CALL SETLHV('LEVEN',.TRUE.,NERR)
+        CALL SETFHV('DELTA',0.025,NERR)
+        PRINT *,'Enter event id'
+        READ(*,*)IEVID
+        CALL GETDAT(IEVID,SDATA,NDATA,TIME,ELAT,ELON)
+        CALL CNVTIM(TIME,NZYEAR,NZJDAY,NZHOUR,
+     #                 NZMIN,NZSEC,NZMSEC)
+        CALL SETNHV('NPTS',NDATA,NERR)
+        CALL SETFHV('EVLA',ELAT,NERR)
+        CALL SETFHV('EVLO',ELON,NEER)
+        WRITE(KEVNM,'(I5)')IEVID
+        CALL SETKHV('KEVNM',KEVNM,NERR)
+        CALL SETFHV('CMPAZ',0.,NERR)
+        CALL SETFHV('CMPINC',0.,NERR)
+        DO 2000 J=1,8
+          KSTNM=KNAME(J)(1:3)
+          CALL SETKHV('KSTNM',KSTNM,NERR)
+          CALL GETLOC(KSTNM,STLA,STLO)
+          CALL SETFHV('STLA',STLA,NERR)
+          CALL SETFHV('STLO',STLO,NERR)
+          CALL WSAC0(KNAME(J),XDUMMY,SDATA(1,J),NERR)
+2000    if(NERR.NE.0)GO TO 9000
+        CALL SETFHV('CMPINC',90.,NERR)
+        CALL WSAC0(KNAME(9),XDUMMY,SDATA(1,9),NERR)
+        IF(NERR.NE.0)GO TO 9000
+        CALL SETFHV('CMPAZ',90.,NERR)
+        CALL WSAC0(KNAME(10),XDUMMY,SDATA(1,10),NERR)
+9000    CONTINUE
+        END
+
+
+Third Example of WSAC0  C
+----------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+#define MCOMP 10
+#define MDATA 4000
+#define FALSE 0
+#define TRUE  1
+
+main()
+{
+    float sdata[ MCOMP ][ MDATA ] , xdummy[ MDATA ] ;
+    float zero = 0. , fortieth = 0.025 , ninty = 90. ;
+    float time , elat , elon , stla , stlo ;
+    char kname[ MCOMP ][ 11 ] = { "STAZ" , "STBZ" , "STCZ" , "STDZ" , "STEZ" ,
+                                  "STFZ" , "STGZ" , "STHZ" , "STHN" , "STHE" } ;
+    char kevnm[ 11 ] , * kstnm ;
+    int nerr , ievid , ndata , j ;
+    long true = TRUE , false = FALSE ;
+
+    newhdr () ;
+    setihv ( "IFTYPE" , "ITIME" , &nerr , 6 , 5 ) ;
+    setihv ( "IDEP" , "IVEL" , &nerr , 4 , 4 ) ;
+    setihv ( "IZTYPE" , "IB" , &nerr , 6 , 2 ) ;
+    setfhv ( "B" , &zero , &nerr , 1 ) ;
+    setlhv ( "LEVEN" , &true , &nerr , 5 ) ;
+    setfhv ( "DELTA" , &fortieth , &nerr , 5 ) ;
+
+    printf ( "\nEnter event id: " ) ;
+    gets ( kevnm ) ;
+    ievid = atoi ( kevnm ) ;
+    getdat ( ievid , sdata , ndata , time , elat , elon ) ;
+
+    setnhv ( "NPTS" , ndata , &nerr , 4 ) ;
+    setfhv ( "EVLA" , elat , &nerr , 4 ) ;
+    setfhv ( "EVLO" , elon , &nerr , 4 ) ;
+    setkhv ( "KEVNM" , kevnm , &nerr , 5 ) ;
+    setfhv ( "CMPAZ" , &zero , &nerr , 5 ) ;
+    setfhv ( "CMPINC" , &zero , &nerr , 6 ) ;
+
+    for ( j = 0 ; j < MCOMP - 2 ; j++ )
+    {
+        kstnm = kname[ j ] ;
+        setkhv ( "KSTNM" , kstnm , &nerr , 5 , strlen ( kstnm ) ) ;
+        getloc ( kstnm , &stla , &stlo ) ;
+        setfhv ( "STLA" , &stla , &nerr , 4 ) ;
+        setfhv ( "STLO" , &stlo , &nerr , 4 ) ;
+        wsac0 ( kstnm , xdummy , sdata[ j ] , &nerr , strlen ( kstnm ) ) ;
+    }
+
+    setfhv ( "CMPINC" , &ninty , &nerr , 6 ) ;
+    wsac0( kname[ 9 ], xdummy, sdata[ 9 ], &nerr, strlen( kname[ 9 ] ) ) ;
+
+    setfhv ( "CMPAZ" , &ninty , &nerr , 5 ) ;
+    wsac0( kname[ 10 ], xdummy, sdata[ 10 ], &nerr, strlen( kname[ 10 ] ) );
+}
+

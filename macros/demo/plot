@@ -1,0 +1,71 @@
+echo off
+message ''
+message 'The next set of commands reads in three files containing'
+message 'amplitude responses from three stations and produces an'
+message 'overlay plot in LINLOG format.'
+message ''
+pause
+echo on
+read $1$mnv_z_am $1$knb_z_am $1$elk_z_am
+xlim .04 .16
+ylim .0001 .006
+linlog
+title 'Rayleigh Wave Amplitude Spectra for NESSEL'
+symbol 2 increment
+window 2 x .01 .5 y .45 .9
+bw 2
+plot2
+pause
+echo off
+symbol off
+title off
+xlim off
+ylim off
+linlin
+echo off
+message ''
+message 'The next set of commands reads part of a signal around the'
+message 'first arrival time, takes its FFT, and then plots the signal'
+message 'and its amplitude response in both LINLOG and LOGLOG format.'
+message ''
+pause
+echo on
+cut a -0.1 n 512
+read $1$cdv_z
+taper
+dft womean amph
+writesp $1$temp
+read $1$cdv_z
+title 'SEISMIC TRACE'
+fileid off
+window 3 x .04 .53 y .48 .93
+bw 3
+begfr
+xwind .1 .9
+ywind .7 .9
+qdp off
+linlin
+plot
+ywind .15 .55
+xwind .1 .45
+linlog
+cut off
+read $1$temp.am
+title 'Amplitude Response [linlog]'
+ylim 1e-5 1
+plot
+xwind .55 .9
+loglog
+title 'Amplitude Response [loglog]'
+xlim 1 60
+plot
+endfr
+pause
+echo off
+title off
+xlim off
+linlin
+ylim off
+qdp on
+xwind .1 .9
+ywind .15 .9

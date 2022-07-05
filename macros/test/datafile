@@ -1,0 +1,27 @@
+*
+* Purpose: To test the SAC commands in the data file module.
+*
+transcript create file $2$datafile.trans content all
+wait text off
+read $3$elk_z
+listhdr default columns 2
+read more $3$elk_z
+listhdr picks columns 1
+write $3$temp1 $3$temp2
+convert from sac $3$temp1 to alpha $3$temp3
+convert from alpha $3$temp3 to sac $3$temp4
+read $3$temp4
+listhdr default columns 2
+cut b n 512
+read
+listhdr
+chnhdr b 100
+chnhdr kevnm 'Just Testing'
+chnhdr iftype ixy
+listhdr
+cut off
+read $3$*_z_am
+listhdr npts
+readalpha content p $3$alphatest
+listhdr default
+transcript close file $2$datafile.trans

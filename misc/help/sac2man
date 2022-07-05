@@ -1,0 +1,110 @@
+### sac2man sed script ##############
+#
+###
+
+# convert the SAC Title Header
+/^SAC Command Reference Manual/{
+s/SAC Command Reference Manual/.TH  /
+s/ * / /g
+s/$/ "SAC" "Version 5.3"/
+}
+
+# get rid of the blank first line
+/^$/{ 
+1d
+}
+
+# process key words
+
+/^SYNTAX:/{c\
+.SH SYNTAX:\
+.LP
+}
+
+/^HEADER CHANGES:/{c\
+.SH HEADER CHANGES:\
+.LP
+}
+
+/^LATEST REVISION:/{c\
+.SH LATEST REVISION:\
+.LP
+}
+
+/^ALTERNATE FORMS:/{c\
+.SH ALTERNATE FORMS\
+.LP
+}
+
+/^DEFAULT VALUES:/{c\
+.SH DEFAULT VALUES\
+.LP
+}
+
+/^DESCRIPTION:/{c\
+.SH DESCRIPTION\
+.LP
+}
+
+/^ERROR MESSAGES:/{c\
+.SH ERROR MESSAGES\
+.LP
+}
+
+/^ERRORS:/{c\
+.SH ERRORS\
+.LP
+}
+
+/^EXAMPLE:/{c\
+.SH EXAMPLE\
+.LP
+}
+
+/^EXAMPLES:/{c\
+.SH EXAMPLES\
+.LP
+}
+
+/^HEADER DATA:/{c\
+.SH HEADER DATA\
+.LP
+}
+
+/^HEADER VARIABLES:/{c\
+.SH HEADER VARIABLES\
+.LP
+}
+
+/^INPUT OPTIONS:/{c\
+.SH INPUT OPTIONS\
+.LP
+}
+
+/^INPUT:/{c\
+.SH INPUT\
+.LP
+}
+
+/^LIMITATIONS:/{c\
+.SH LIMITATIONS\
+.LP
+}
+
+/^SEE COMMANDS:/{c\
+.SH SEE COMMANDS\
+.LP
+}
+
+/^SUMMARY:/{c\
+.SH SUMMARY\
+.LP
+}
+
+/^WARNING MESSAGES:/{c\
+.SH WARNING MESSAGES\
+.LP
+}
+
+#### end of sac2man sed script
+

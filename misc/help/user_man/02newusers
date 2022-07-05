@@ -1,0 +1,113 @@
+SAC2000 User's Manual
+
+
+For New Users
+
+
+Overview
+SAC2000 was designed as an aid to research seismologists in the study of
+seismic events.
+As such, it is used for quick preliminary analyses, for routine processing,
+for testing new techniques, for detailed research, and for creating
+publication quality graphics.
+It is used by both computer novices and experts.
+In order to make SAC2000 quick to learn and easy to use, default values for
+all operational parameters were carefully chosen.
+At the same time, almost all of these parameters are under direct user control.
+This design combines ease of use with significant flexibility.
+
+
+User Interface
+SAC2000 is an interactive command driven program.
+Commands may be typed at the terminal or placed in a macro file.
+SAC commands fall into three main categories: parameter-setting,
+action-producing and data-set manipulation.
+The parameter-setting commands change values of internal SAC parameters.
+Action-producing commands perform some operation on the signals currently
+in selected memory based upon the values of these parameters.
+Data-set commands determine which files are in active (selected) memory
+and therefore will be acted upon (data-set commands are not currently
+operational).
+The effect of a parameter-setting command remains in effect until it is
+reset. The effect of an action-producing command is immediate and transitory.
+Action-producing commands also have options which normally remain in effect
+until reset.
+These options, however, apply only to that particular command.
+The underlying assumption is that you are more likely than not
+to want to use the same values the next time you execute the same command.
+When you start up SAC2000, default values are defined for all of these
+parameters.
+SAC2000 can be reinitialized to this default state at any time by executing the
+ INICM command.
+
+
+Mode of Operation
+Each signal is stored in a separate data file.
+Each data file contains a header that describes the contents of that file.
+See the section on Data File Format for details.
+Signals are read from disk into memory using the  READ command.
+CSS 3.0 formated flat files can be read using the READCSS command.
+SAC2000 can process up to 200 signals of arbitrary size at a time.
+Once data is in memory other commands are typed at the terminal
+(or read from a macro file) to perform operations on these signals.
+All operations work concurrently on ALL signals in memory.
+You can look at the results at any time using the plot commands.
+There are several plot formats to choose from.
+You have control over titles and labels, plot limits, file identifications,
+axes and tick mark locations, etc.
+You can also save the results of these operations at any time using the
+ WRITE command.
+All of the commands are described briefly in the sections on Analysis
+Capabilities and Graphics Capabilities of this manual and documented
+in detail in the Commands Reference Manual.
+
+How SAC2000 Handles Time
+The SAC header contains a reference or zero time, stored as six integers
+(NZYEAR, NZJDAY, NZHOUR, NZMIN, NZSEC, NZMSEC),
+but normally printed in an equivalent alphanumeric format (KZDATE and KZTIME.)
+This can be set to any reference time you wish.
+It is often the time of the first data point, but can also be the origin time
+of the event, midnight, your birthday, etc.
+It does not even have to be a time encompassed by the data itself.
+All other times are offsets in seconds from this reference time and are stored
+as floating point values in the header:
+
+        B = Begin time of the file.
+        E = End time of the file.
+        O = Event origin time.
+        A = First arrival time.
+        F = Fini (end of signal.)
+        Tn = Time markers, where  n is an integer from 0 to 9.
+
+Many SAC commands work with these header variables.
+They are discussed in the two sections on Analysis and Graphics Capabilities.
+The  CUT command is one of the most important of these commands.
+It lets you select portions of data files using the offset time header fields
+to be read in by subsequent  READ commands.
+Examples of the use of  CUT and  READ are shown in the Tutorial Guide
+and also in the Command Reference Manual.
+
+
+
+Getting Started
+The second best way to get started (after you have finished reading this
+section) is to sit down at a terminal or workstation
+with a copy of the Tutorial Guide For New Users, and try the examples as
+you read the manual. (The best way is corner an experienced and patient user
+and make him or her show you how things work!)
+The examples in the tutorial cover the basic commands you need to know in
+order to proceed further.
+The next step is to browse through the lists (one alphabetical and the other
+functional) of SAC commands in the Command Reference Manual, find a few that
+sound interesting, and try them.  SAC2000 is fairly careful in checking for
+errors so you can't do much harm in experimenting.
+After you have become somewhat comfortable using SAC2000, you might want
+to return to this manual to get a better overview of the program.
+Be sure and read the section on SAC macros.
+They will definitely save you time when you get ready to do fairly
+complicated or repetitive analysis on large data sets.
+Eventually you will probably want to sit down and wade through the complete
+Command Reference Manual to get a complete picture of what you can do with
+SAC2000.
+It's better to defer that step until you have used the code for awhile.
+

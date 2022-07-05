@@ -1,0 +1,541 @@
+-----------------------------
+| sac2000 v0.59
+-----------------------------
+
+0) Our web pages have been completely re-written, and are available 
+   at http://www.llnl.gov/sac
+
+   The set of functions which handles the CSS data buffers has been completely
+   overhauled to impose better consistency with the CSS 3.0 data format.
+   The data now flows more smoothly between the SAC data buffer and the 
+   CSS data buffer.  This solves many annoying little bugs.  In order to
+   maintain flexibility, the command PICKPREFS has been added to allow
+   the user more control over the way arrivals are read from the relational
+   formats (database, CSS flat files, GSE, and SUDS), use HELP PICKPREFS. 
+   Also the TRUST option has been added to most Reads to give the user some
+   control in determining how event information is associated with waveform
+   data in the relational formats, use HELP READ.  
+
+1) New Capabilities / Added Commands and Options
+
+  *** IMPORTANT ***
+   All commands that load data into memory (funcgen, datagen, any form of
+   read, etc.) have been modified to better handle the internal conversion
+   between the SAC and CSS data formats.  For details, use the HELP READ.
+   This is especially important for people who use CSS format regularly and
+   require internal data consistency.  
+
+  *** IMPORTANT ***
+   PICKPREFS is a new command giving the user control over whether or not to
+   pass CSS arrivals through the pick preferences file on its way to the 
+   SAC data buffer.  The behavior established by the use or neglect of this
+   command could affect all pick processing.  Type HELP PICKPREFS at the SAC>
+   prompt.
+
+   TRAVELTIME TAUP:  TRAVELTIME now takes the TAUP option, specifying that the
+   named file is of the format output by taup_curve:  a traveltime estimator
+   by Philip Crotwell at the University of South Carolina.
+   The PICKS option saves requested picks in specified header fields T0-T9.
+   Use HELP TRAVELTIME for details.
+
+   TRANSFER now can read response information from a Frequency/Amplitude/Phase
+   (FAP) file.  Also, the DBASE option sends SAC searching the Oracle database
+   for pertinent EVALRESP, FAP, or POLEZERO files for instrument response.
+*** IMPORTANT ***
+   In versions 0.58 and 0.58a-0.58e, TRANSFER had an inconsistency in the
+   units of the return values (meter vs. nm).  In version 0.59 all values
+   are returned in nm (or nm/sec, or nm/sec/sec, etc.) except in cases
+   where the data is transfered to a specific instrument which uses
+   alternate units.  The NANO option in v0.58 is no longer available in
+   v0.59.  For details use HELP TRANSFER.
+
+   WHITEN FILTERDESIGN:  WHITEN (or PREWHITEN) uses a linear prediction filter
+   to add noise to a signal to make the signal more robust under certain
+   transformations.  The FILTERDESIGN option performs something similar to the 
+   FILTERDESIGN command, it produces SAC files of the impulse response, the 
+   amplitude & frequency responses, and the group delay of the linear
+   prediction filter used in WHITEN.  For details, use HELP WHITEN.
+   
+   WRITE SEGY writes files to the IRIS/PASSCAL form of the SEGY format.  
+   Each file contains one waveform.  Use HELP WRITE for details.  
+
+2) Important Changes
+   READ SEGY has been updated to convert more header fields to the SAC format,
+   and has been modified to work more seemlessly with WRITE SEGY.  For
+   details, use HELP READ.
+
+   MAP now allows the user to add station anotations, topography and bathymetry
+   to their maps.  Use HELP MAP.
+
+   RTREND now saves slope, y intercept, standard deviation, and correlation 
+   coeficient information in blackboard variables.  For details, use
+   HELP RTREND.
+
+3) Bug Fixes
+   Documentation for the BBFK command has been modified for accuracy and
+   clarity.  Use HELP BBFK.
+
+   Numerous bugs have been fixed in the TRANSFER command since version 0.58.
+
+   For those with CSS 3.0 formatted Oracle database, many bug fixes have been
+   implemented in the READDB command.  
+
+
+-----------------------------
+| sac2000 v0.58
+-----------------------------
+
+0) Our New Area Code is 925
+
+1) New Capabilities / Added Commands
+   READCSS and WRITECSS have been rewritten from the ground up to provide
+   complete CSS 3.0 compatibility.
+   For details use HELP READCSS and HELP WRITECSS.
+
+   COMMIT, ROLLBACK, and RECALLTRACE (RECALL for short) are three new commands
+   which add flexibility to the process of analyzing data.  SAC now has two
+   data storage locations in RAM, the original working memory that SAC has
+   always had, and an I/O buffer.  After reading a set of files (which puts
+   identical information in both working memory and the I/O buffer), the user
+   can process the files in working memory while leaving the I/O buffer
+   untouched.  The two locations contain information from the same files, but
+   the one is processed and the other is not.  The user can choose from the
+   following options:
+	- ROLLBACK copies the unprocessed files from the I/O buffer to
+	  working memory, reverting to the previous state,
+	- COMMIT copies the processed files from working memory into the 
+	  I/O buffer, commiting the changes in both locations,
+	- RECALLTRACE rolls back the waveform certain header fields which are
+	  tightly linked to the waveform, while commiting the remaining
+	  header fields; the user can filter a file, use PPK to get picks, and
+	  use RECALLTRACE to get the original waveform back but keep the picks.
+   For more information use HELP COMMIT, HELP ROLLBACK, and HELP RECALLTRACE.
+
+   SORT allows the user to sort the files in memory according to the header
+   fields.  It can sort in ascending or decending order, and can sort on as
+   many as five header fields at once.  For details, use HELP SORT.
+
+   CUTIM allows the user to cut the file in memory.  Also allows the user to
+   cut multiple segments of a file into multiple files.  For details use 
+   HELP CUTIM.
+
+   READGSE and READSUDS were added to read the GSE2.0 data format, and the SUDS
+   data format.  For details use HELP READGSE and HELP READSUDS.
+
+   WRITEGSE now writes data in the GSE2.0 format. For details use HELP WRITEGSE
+
+   READ now take a SEGY option allowing it to read segy files of the type
+   supported by IRIS/PASSCAL.  For details use HELP READ.
+
+   READ now takes an ALPHA option to allow it to read SAC formated alphanumeric
+   files such as those written with WRITE ALPHA.  To avoid some of the 
+   confusion, the READALPHA command (which doesn't read SAC formated 
+   alphanumeric files, but tabular collumn data) has been renamed READTABLE 
+   (or RTAB for short).  For details, use HELP READ or HELP READTABLE.
+
+   WHITE (or PREWHITE) has been added as a command callable from either SAC's
+   main shell, or from the SPE subprocess.  It performs the same processing as
+   the PREWHITEN option of the COR command.  Use HELP WHITEN for details.  
+
+   FILTERDESIGN is working again. FILTERDESIGN plots a graphical representation
+   of a filter, the parameters of which are entered by the user at the command
+   line.  
+   The FILE option saves Impulse Response, Group Delay, and Amplitude and Phase
+   information in SAC files.  Use HELP FILTERDESIGN for details.  
+
+   PRINT option has been added to the following commands:  BEGINFRAME, PLOT,
+   PLOT1, PLOT2, BBFK, FILTERDESIGN, PLOTALPHA, PLOTCOR, PLOTDY, PLOTPM,
+   PLOTRECORDSECTION, IMAGE, SONOGRAM, and SPECTROGRAM.  When
+   used with the BEGINFRAME command, it signals the ENDFRAME command to print
+   the resultant plot.  All other commands simply print the resultant plot.  
+   It optionally takes the name of a printer as a parameter.  It will write
+   SGF files in the /tmp directory.  Use the HELP command on any of the listed
+   commands for details.
+
+   PRINT command will print the most recent SGF file produced.  This presumes 
+   an SGF file has been produced since SAC2000 was booted.  For details use
+   HELP PRINT.
+
+   The SGF command now takes an OVERWRITE option.  When OVERWRITE is on, each
+   SGF file written overwrites the previous SGF file.  This saves space on the
+   hard disk, but the files disappear.  
+
+   PRINTHELP hardcopies of help files.  Use HELP PRINTHELP for details.
+   
+2) Important Changes
+   The maximum number of files that can be read into SAC2000 has been
+   increased from 200 to 1000.  
+
+   Now that there are two memory locations where each file is stored, it is 
+   important for certain SAC commands, that the two copies of each file
+   be identical.  For this reason, the following commands will automatically
+   perform either a COMMIT, ROLLBACK, or RECALLTRACE before executing:
+   MERGE
+   DATAGEN MORE
+   READ MORE
+   READTABLE MORE (formerly READALPHA)
+   READCSS MORE
+   READDB MORE
+   READGSE MORE
+   READHDR MORE
+   READSDD MORE
+   READSUDS MORE
+   SORT
+   WRITE
+   WRITECSS
+   WRITEHDR
+   WRITESP
+   WRITESTACK
+   In each case, COMMIT is the default, but options allow the user to change to
+   ROLLBACK or RECALLTRACE.  Use the HELP command for further information.  
+
+   The commands MULF, DIVF, ADDF, and SUBF have -- in previous versions -- left
+   the user with the headers from the file being added (or what have you) in,
+   as opposed to keeping the original header.  This version and future versions
+   will keep the original header by default.  An option has been provided to
+   allow the user to keep the new header instead.  For details use HELP MULF,
+   HELP DIVF, HELP ADDF, or HELP SUBF.
+
+   DELETECHANNEL now accepts a range of filenumbers using the dash (-).
+   For details, use HELP DELETECHANNEL.
+
+   The MERGE command has been updated to allow files with overlapping data 
+   points to merge as long as the overlapping points line up exactly.  
+
+   PLOT2 now plots spectral files (IRLIM and IAMPH) as relative whether the
+   RELATIVE or ABSOLUTE option is selected.  This is because frequency is
+   not measured on an arbitrary scale as is time.  For details use HELP PLOT2.
+
+   sacio.a is a new library available on our ftp site which a whole lot smaller
+   than sac.a and allows full use of all the SAC I/O routines written up in the
+   SAC manual.  These routines can be called transparently from either C or 
+   FORTRAN code.  Use HELP INPUT_OUTPUT and HELP APPENDIX for details.  
+
+3) Bug Fixes
+   Modified SPE subprocess to allow windows greater than 2048.
+
+   Fixed a bug in e1 compressed data expansion
+
+   Fixed a bug that prevented SAC from reading from links.
+
+-----------------------------
+| sac2000 v0.57
+-----------------------------
+
+0) New Area Code
+   On March 14, 1998, the area code for Lawrence Livermore National Laboratory,
+   and the SAC developement team, changed from 510 to 925.  Mandatory dialing 
+   of the new area code begins September 12.
+
+1) New Capabilities / Added Commands
+   READDB gets data from an Oracle database.  Note that this capability is only
+   available on the Sun/Solaris version of SAC2000.  To get READDB working, 
+   the executable sac2000.57.oracle.Z, must be downloaded from the ftp site
+   and uncompressed (see the README file which came with the distribution).  
+   The user also needs access to a compatibly formatted Oracle database.  
+   For details on how the command works, use HELP READDB.
+     A note to the Oracle database manager:  The READDB command will work with
+     a database that strictly conforms to the CSS 3.0 data format.  
+     Alternatively, if an EVID column is added (and populated) in the WFDISC
+     table, READDB will work, and have increased performance for some queries.
+
+2) Bug Fixes
+   Fixed bug in p2 which prevented fileid from plotting properly if it was
+   set to a header variable.  
+
+   Fixed bug in central plotting routine which was plotting data points off
+   the right side of the plot.
+
+   The DC abbreviation had been overloaded, refering to the DELETECHANNEL 
+   command in the main part of SAC2000 and to the DELTACHECK command in the 
+   Seismogram Stacking Subprocess.  DC no longer refers to the DELTACHECK
+   command.  Users wishing to use the DELTACHECK command in SSS should
+   spell out the whole command name.  
+
+   Fixed a bug in SPECTROGRAM which was producing errors in header fields.
+
+   Fixed a bug in 3c which didn't update SAC data in MATLAB when the engine
+   was left running between calls.
+
+-----------------------------
+| sac2000 v0.56a
+-----------------------------
+1) The sac I/O library routines have been rewritten and are included in the 
+   SAC library called sac.a.  sac.a is available on the SAC2000 ftp site.  
+   Now there is one set of I/O routines which can be called from either C or
+   FORTRAN programs.  See help input_output, help blackboard, and help appendix.
+
+-----------------------------
+| sac2000 v0.56 and prior
+-----------------------------
+
+1) New Capabilities
+
+ READCSS does a more comprehensive job of reading CSS 3.0 flat files.
+ see help readcss
+
+ READCSS can handle the e1 compressed format.
+
+ SAC has a MATLAB interface, allowing users with MATLAB to use its 
+ capabilities within SAC.  See help mat.  
+
+ 3C is a new three-component processing capability in SAC2000.  
+ It allows the user to interactively estimate a signals polarization 
+ and wave type (P or S).  It can also be run in batch mode.  
+ See help 3c 
+
+ Users who don't have MATLAB, can still use SAC.
+
+ The external function capability, which allows users to design their 
+ own sac commands, has been enhanced and we have included an example 
+ external function called flipxy with the distribution.  This function 
+ allows the users to transpose XY data, and provides an example to the user of
+ how to write and install an external command into SAC.
+
+ WIENER now checks to make sure that the noise window is within the data window.
+
+
+2) Added Commands
+ DELETECHANNEL (DC) removes a file from SAC's memory.  see help deletechannel
+
+ FILENUMBER (FN) allows the plots to display the file number of each file.  
+ This can be used to determine the number of a file to be deleted with
+ DELETECHANNEL.  see help filenumber.
+
+ DELETESTACK performs the same function as DELETECHANNEL, but it can be called
+ from within the Signal Stacking Subprocess (SSS).  
+
+ PICKAUTHOR and PICKPHASE are used to modify the behavior READCSS uses in 
+ reading picks from the .arrival file (CSS 3.0 flat files).  
+ see help readcss, help pickauthor, and help pickphase
+
+
+3) Added Options
+ BB option for TRAVELTIME command saves a time on the black board.
+ see help traveltime
+
+ If the DISTANCEWINDOW command is called with two real numbers, it will behave
+ as though the FIXED option is specified.
+
+ The utility SGFPLOT can take the CONSTRAIN option which constrains the aspect
+ ratio of the plot to 3/4 (Thanks to Arthur Snoke).
+
+
+4) Bug Fixes
+ A bug in TRAVELTIME prevented traveltime curves in ascii files from plotting
+ correctly in portrait mode.  This has been corrected.  see help traveltime
+
+ SYNCHRONIZE was synchronizing files properly only if they had the same date.  
+ Files with different dates were having the begintimes all set to zero.  This 
+ has been corrected.  For the user who wants the begin times set to zero, the
+ BEGIN option has been added to this command.  see help SYNCHRONIZE
+
+ A bug prevented users who had changed the color table to return to the default
+ color table (table 17).  This has been corrected.  see help loadctable
+
+ The PLOT1 command would not utilize the relative option if XLIM was set.  This
+ has been corrected.
+
+ The CUT command now cuts precisely where the user requests.
+
+
+----------------------------------------------------------------------
+| Recent developments in and enhancements to SAC2000 (v55 and prior) |
+----------------------------------------------------------------------
+
+A number of new features, recent developments or improvements 
+are briefly summarized below.  For the most up-to-date information 
+on specific commands consult the on-line documentation.  
+Additional information can also be found on our web page at 
+http://www-ep.es.llnl.gov/tvp/sac.html
+
+One of our recent developments is an interface to matlab that will 
+allow you to run matlab scripts from within SAC2000 on data in 
+memory.  Our matlab interface currently provides direct access 
+to sac waveform data and all relevant header fields.  
+Development of this interface is still in progress.  In our next release, 
+the header will be broken into well defined structures for easier 
+access and we are also considering adding access to SAC2000's blackboard. 
+For more information on this feature type "help mat" inside 
+SAC2000.  
+
+Another useful feature that many of our long-time users may 
+not be aware of is our interface to the Generic Mapping Tools 
+(GMT) codes which allows the user to make quick maps of stations, 
+and events, where the event symbols can be scaled by magnitude 
+or residual.  
+
+Users can also develop their own sac commands based on 
+standalone C or FORTRAN programs.  These commands run within 
+SAC2000 sharing waveform and header data in SAC2000's internal memory.  
+For more information type help "external_interface"
+
+Our spectrogram/sonogram commands are also a popular feature.  
+These commands produce properly registered high resolution 
+color spectrograms and binary sonograms, 
+
+
+*** The following is a very brief summary of some ***
+*** of the recent developments/improvements.      ***
+***            Commands are in all caps.          ***
+
+--- Processing enhancements: 
+MAP or GMAP:  High Quality Maps using a command line interface to GMT.    
+	      Arraymap can be used to plot array configurations.  
+external_interface:  Make your own sac commands using fortran or c subroutines. 
+LOAD:  Loads your external commands.  
+evalresp option in TRANSFER:  Transfer has been modified to incorporate 
+			      evalresp type responses generated by rdseed.  
+
+TRAVELTIME: Calculates travetimes based on the iasp91 model.  
+PLOTRECORDSECTION: new version with a default portrait mode that can also 
+                   plot iasp91 travel times on record sections and automatically 
+		   displays travel time picks.  
+		   It is also possible to zoom in and out and it is no longer 
+ 		   necessary to specify a timewindow with this command.
+ADDSTACK, CHANGESTACK, DELETESTACK, LISTSTACK: begin and end time can now be 
+specified.
+
+SPECTROGRAM: High resolution spectrograms with properly registered seismogram 
+and images.
+SONOGRAM: High resolution sonograms and binary sonograms.
+IMAGE: image plots of 3-D data
+LOADCTABLE (lct): a selection of 17 colortables to use with 3-D images 
+		  (e.g., spectrograms, fk, etc...)
+
+BBFK and BEAM:  Use lat and lon in headers or user7, user8, user9, to 
+       	   	compute relative station locations.  
+BBFK: 	Wavenumber and azimuth at maximum power are writen to blackboard 
+variables
+CORRELATE: output timing made consistent with conventional applications.   
+CONVOLVE: convolves a master signal into a number of traces. Timing is now 
+	  consistent with conventional applications. 
+FUNCGEN: A new function consisting of a string of impulses. 
+LINEFIT: Fit a straight line to data
+WIENER: filters data using filter design based on a window of noise.  
+
+
+--- I/O
+READCSS:  read CSS2.8 and CSS3.0 data into sac.  
+	Recent enhancements include a station selection option, 
+	  (e.g., readcss my.wfdisc station AAA). 
+	Shift on or off to set the origin time to reference time (default is on)
+	Scale on or off to scale the data by the calib constant (default is off)
+	Added GSE3.0 format. 
+WRITECSS: write CSS3.0 data from sac.  
+WRITE: Write to xdr format for tranformation to linux version.  
+       kstcmp option uses to kstnm and kcmpnm to define file name.  
+       The kstcmp option is most useful with css data that has multiple 
+       waveforms in a single wfdisc. 
+READ:  Read from xdr format. (see write).
+
+--- Documentation 
+HELP:  on-line help contains all the sac documentation. Type help for 
+instructions. 
+Web page:  http://www-ep.es.llnl.gov/tvp/sac.html
+
+
+--- Convenience and efficiency related enhancements: 
+UNIX:  Any unix command except rm can be specified at the command line. 
+HISTORY:  view commands or reissue with unix style !"command number" 
+	  (e.g., !2 to rerun the second command issued in the current sac 
+session).  
+
+sacnfiles (an automatically generated blackboard variable): 
+	The number of files in memory is now listed as a blackboard variable.         
+CHNHDR:   selectively change individual file headers. 
+READ:   can now handle path names with wildcards. 
+SETMACRO: Added a new option to add more macro directories and increase 
+	  maximum number of macro directories to 100. 
+LISTHEADER:  You can now see all the header variables with the inclusive
+	     option.  Even ones that aren't defined.  
+FILENUMBER ON|OFF:  When this command is on the filenumbers 
+		    are displayed next to the traces.  
+DELETECHANNEL (dc): combined with filenumber, it allows the user to remove 
+		    unwanted channels from memory.  
+PLOTPK: a new option to turn the bell on or off: e.g., ppk bell off. (default is 
+on).  
+
+---------------------------
+| Version 10.6d  (6/17/91)|
+---------------------------
+(1) Fixed bug with illegal device type causing segmentation fault.
+ 
+(2) Fixed bug with continuous prompt when cntrl-d is typed at
+    the command line.
+ 
+(3) Fixed problem of no error msg when system command fails due to
+    not enough memory.
+
+(4) Fixed a bug with READ command where WILD and DIR are specified.
+
+---------------------------
+| Version 10.6c  (6/17/91)|
+---------------------------
+(1) Fix to OpenWindows cursor problem.
+    Changed the cursor to a cross hair and aligned the hotspot
+    with the vertical and horizontal lines drawn in PPK.
+ 
+(2) Fix to monochrome monitor problem.
+ 
+(3) Change to the STRETCH command. Now uses a built-in design
+    routine to generate filter coefficients instead of reading
+    them from a file.
+
+(4) Fix to the READ command to improve use of wild cards and
+    directory path names.
+
+(5) Fix to default graphics device selection. Default is no longer
+    TERMINAL. You will be prompted for the device if none is specified
+    either with the BEGINDEVICE command or through the SACGRAPHICSDEVICE
+    environmental variable.
+
+(6) Fix to the graphics state save and restore in the PLOT1 command.
+
+---------------------------
+| Version 10.6b  (2/25/91)|
+---------------------------
+(1) Faster Graphics:
+     plots in buffered mode
+
+---------------------------
+| Version 10.6a  (1/1/91) |
+---------------------------
+(1) New commands:
+     MAP -  show layout of stations in an array.
+     BBFK - compute the borad band frequency wave number and display the plot.
+     FILTERDESIGN - Graphicly displays info about a filter type and parameters.
+     READSDD | WRITESDD - Read and write SDD data files.
+
+(2) Modifications to existing commands:
+     Added ASPECT ON|OFF option to PLOTXY command.
+     Added TRAPEZOIDAL|RECTANGULAR options to INTEGRATE command.
+
+---------------------------
+| Version 10.5c  (7/3/90) |
+---------------------------
+(1) Fixed bug involving logarithmic interpolation and fixed plot limits.
+(2) Decreased length of some contouring subroutine names.
+---------------------------
+| Version 10.5b (4/30/90) |
+---------------------------
+(1) Added ZCOLOR, ZLABELS, and ZTICKS to contouring package. You now
+    have complete linestyle, label, directional tick mark, and color
+    control of contour plots.
+(2) Replaced the MINIMUM and MAXIMUM options in ZLEVELS with RANGE.
+(3) Added LNN and REFTEK instrument responses to TRANSFER.
+(4) Developed a document revision set for distribution.
+---------------------------
+| Version 10.5a (3/22/90) |
+---------------------------
+(1) Added SPECTROGRAM command. Converts data in memory to a spectrogram.
+(2) Added CONTOUR command including the ability to set contour levels
+    (ZLEVELS) and linestyles (ZLINES.) All linestyles (not just solid 
+    and dotted) have been added since the Seismic Seminar.
+(3) Added GRAYSCALE command to display data as a grayscale image.
+    Capabilities include scaling, zooming, and windowing.  
+    Uses the Utah Toolkit for image display.
+(4) Added options to the SGF command to control final plot size.
+(5) Doubled size of data storage array to 2,000,000 words.
+(6) Fixed bug involving hardware text and sgf.
+(7) Fixed bug in setting global macro location.

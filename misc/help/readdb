@@ -1,0 +1,674 @@
+SAC Command Reference Manual                                     READDB
+
+SUMMARY:
+Reads data from Oracle database into memory.
+
+NOTE:  To understand how the CSS picks are transfered to the SAC data buffers,
+       type HELP PICKPREFS and HELP READCSS.
+
+SYNTAX:
+READDB [primary_option ...] database_option value [database_option value ...]
+
+Where the primary options are:
+
+      MORE:  Place the new data files in memory AFTER the old ones.  If this
+          option is omitted, the new data files REPLACE the old ones.
+
+          Note:  if the MORE option is not specified, the COMMIT, ROLLBACK,
+                 and RECALLTRACE options have no effect.
+
+      TRUST ON|OFF  :   This option is used to resolve an ambiguity in
+                 converting files from SAC to CSS format.  When converting the
+                 data matching event IDs could mean the files have identical
+                 event information, or they could be an artifact of the
+                 merging of these two very different formats.  When TRUST
+                 is ON, SAC is more likely to accept matching event IDs as
+                 identical event information than when TRUST is OFF,
+                 depending on the history of READ commands associated with
+                 the current data files in memory.
+
+      COMMIT:  If the MORE option is specified, the COMMIT option commits
+               headers and waveforms in SAC memory -- removing any previous
+               versions of headers or waveforms from RAM -- prior to
+               reading more files.  COMMIT is the default.
+
+      ROLLBACK:  If the MORE option is specified, the ROLLBACK option reverts
+                 to the last committed version of the header and waveform
+                 before reading more files.
+
+      RECALLTRACE:  If the MORE option is specified, the RECALLTRACE option:
+                - reverts to the last committed version of the waveform,
+                - reverts to the last committed version of those header
+                  variables closely linked to the waveform,
+                - commits those header variables which are loosely linked
+                  to the waveform.
+              (use HELP RECALLTRACE for a list of which header variables are
+              committed, and which are rolled back.)
+
+      SHIFT ON|OFF:  If SHIFT is on, the origin time is set to zero, and
+          other time related header variables are shifted back to be
+          consistent with the origin time.  Some of the distance related
+          header variables are also affected.  SHIFT ON is the default.
+
+      SCALE ON|OFF:  The SCALE option is OFF by default.
+          When SCALE is OFF, SAC reads the data directly from the database.
+          When SCALE is ON, SAC multiplies the waveform by a SCALE factor
+          given in the .wfdisc table.  This scale option changes with the 
+          SCALE options of READ SEGY, READCSS, READGSE, and READSUDS.
+          If SCALE is OFF, the SCALE value from the database will be stored
+          in SAC's SCALE header variable.  If SCALE is on, SAC's SCALE
+          header field is set to 1.0.
+          SCALE is a crude method of accounting for the instrument
+          response.  The prefered method is with the TRANSFER command.  
+          It is recommended to leave SCALE off for the READ and use
+          the TRANSFER command.  SCALE should really only be used
+          if the response information necessary for the TRANSFER command
+          is not available.
+
+
+      MAGNITUDE MB|MS|ML|DEF:
+          Determines which value of magnitude to put into SAC2000's
+          magnitude hearder variable.  MB gets the bodywave magnitude,
+          MS gets the surfacewave magnitude, ML gets the local magnitude,
+          and def (the default) follows this algorithm:  if Ms exists and
+          is greater than or equal to 6.6, take it, else, if Mb exists take 
+          it, else, if Ms exists take it, else take Ml.
+
+          Note:  There are database options described later which allow
+                 the user to select waveforms based on Mb magnitude, Ms
+                 magnitude, or Ml magnitude.  These are different from 
+                 the primary option MAGNITUDE which determines which 
+                 magnitude is read into the header variable.  
+                 eg. READDB MAGNITUDE ML MSMAG 5 8
+                 This command will get waveforms from the database with
+                 surface wave magnitudes between 5 and 8, but it will
+                 read the local magnitude into sac's magnitude header
+                 variable.  
+
+The order that the options are entered on the command line matters only
+in that all of the primary options must be entered before any of the 
+database options.  
+
+  All commands which load data into memory are now monitored to maintain
+a level of confidence in the event information when moved from the SAC data
+buffer to the CSS data buffer.  For READDB, when the confidence is HIGH that
+all the data files are cosistent in the numbering of event IDs, matching
+event IDs are treated as having identical event information.  When the
+confidence is LOW in READDB, matching event IDs are understood as an artifact,
+and new event IDs are generated for the incoming file.  If READDB is given with
+the MORE option, and SCHEMA is used to change the name of the schema to be
+accessed, then confidence is reduced from RDB to HIGH.
+For more details use HELP READ.
+
+
+Database options are described below:
+
+Each database option is followed by one or more values separated by spaces 
+or commas.  For help on specific options type READDB HELP optionName, 
+e.g. READDB HELP HELP
+
+Available database options are:
+GENERAL:
+   HELP            This screen
+   MAXROWS         MaxNumberofRows
+   SHOWSQL         Show generated SQL for all queries
+   CMDFILE         filename of file containing select commands
+
+DATABASE:
+   SCHEMA          Name of schema to access
+   CONNECT         userID/password
+   SID             Database Service Identifier (sid)
+   SHOWDEFAULTS    Show current Oracle defaults
+
+SOURCE RESTRICTIONS:
+   SRCLAT          minLat maxLat
+   SRCLON          minLon maxLon
+   SRCDEP          minDepth maxDepth
+   SRCBOX          file=filename or lat lon lat lon lat lon ...
+   SRCTYPE         one or more of qb eq me ex o l r t
+   SRCCIRCLE       latCenter, lonCenter, radius (km)
+   MBMAG           minMag maxMag
+   MLMAG           minMag maxMag
+   MSMAG           minMag maxMag
+   EVENTID         file=filename or ID,ID,ID ...
+
+STATION RESTRICTIONS:
+   STANAME         file=filename or name name name ...
+   COMPONENT       VHE VHN VHZ etc.
+   STALAT          minLat maxLat
+   STALON          minLon maxLon
+   STABOX          file=filename or lat lon lat lon lat lon ...
+   INSTDEPTH       minDepth maxDepth
+   STARTTIME       YYYY/DDD/HH:MM:SS.SSS or YYYY/MM/DD/HH:MM:SS.SSS
+   ENDTIME         YYYY/DDD/HH:MM:SS.SSS or YYYY/MM/DD/HH:MM:SS.SSS
+
+SOURCE-STATION RESTRICTIONS: (must have 1 station)
+   SRCDIST         minDist maxDist (in km), minDist defaults to 0
+   SRCDELTA        minDelt maxDelt (in degrees), minDelt defaults to 0
+   QUADRANT        minAzimuth maxAzimuth
+
+OTHER RESTRICTIONS:
+   PHASELIST       Phase1 Phase2 ...
+   AUTHLIST        auth1 auth2 ...
+   WFID            wfid1 wfid2 ...
+
+
+
+EXAMPLES:
+      In the following examples is it assummed that your connect string and
+schema name are properly set in your configuration file (see SHOWDEFAULTS
+below). To read all seismograms recorded at station ABKT on component BHZ
+from events with epicenters with latitudes between 30 and 32 degrees and
+with longitudes between 60 and 62 degrees:      
+ 
+      u:  readdb srclat 30 32 srclon 60 62 staname ABKT component BHZ
+ 
+      Having read those seismograms, perhaps you note that many have very
+poor S/N and you only want to work with the larger events. You decide to
+use a magnitude cutoff of Mb = 4.7 and know that no events have Mb > 7.0.
+To retrieve events matching these new criteria:
+      
+      u:  readdb srclat 30 32 srclon 60 62 staname ABKT component BHZ mbmag 4.7 7.0
+
+      Now you decide that you only want to load seismograms from events that occurred
+within a 4 day interval starting on day 54 of 1994 and ending on day 57 of the same 
+year. To accomplish this:
+
+      u:  readdb srclat 30 32 srclon 60 62 staname abkt component bhz mbmag 4.7 7.0
+          starttime 1994 054 endtime 1994 057 
+
+      Suppose you want to look at aftershocks of an earthquake that occurred on
+day 162 at 9:00 GMT in 1994 with an epicenter at 29 degrees latitude, 53 degrees
+longitude. Based on the size of the mainshock you expect no aftershocks at distances
+greater than 50 km from the mainshock epicenter. You also only want to see
+seismograms from aftershocks with body wave magnitudes >= 4.7:
+      
+      u: readdb srccircle 29 53 50 sta abkt chan bhz mbmag 4.7 7.0 starttime 1994 162 09:00
+
+
+Note:  for examples of the behavior of the COMMIT, ROLLBACK, and RECALLTRACE
+       options, see the commands of the same names.  
+
+
+
+
+
+MAXROWS OPTION
+   MAXROWS MaxNumberofRows
+Some queries can return very large numbers of seismograms. If
+the memory required to load the seismograms approaches or
+exceeds physical memory, performance is likely to be degraded.
+Therefore readDB restricts all queries to return a maximum
+number of rows. This number can be set in a configuration file
+or it can be specified on the command line using the MAXROWS
+option. If you use the MAXROWS option you must follow it with
+a single positive number.
+---------------------------------------------------------------
+
+
+SHOWSQL OPTION
+   SHOWSQL [ON | OFF]
+ReadDB translates the options you specify into a series of SQL
+commands that are used to extract the data from the Oracle data
+base. To view the generated SQL use the SHOWSQL option. SHOWSQL
+can be used either with or without parameters. If used without
+parameters it acts as a toggle. That is, if the current state is
+to not show generated SQL, then issuing a command that includes
+the SHOWSQL option will change the state to ON. Otherwise, the
+state is changed to OFF. You can also pass the parameters ON
+and OFF to SHOWSQL to explicitly set the state.
+---------------------------------------------------------------
+
+CMDFILE OPTION
+   CMDFILE filename
+If you frequently use the same options with, perhaps, minor
+variations from one use to the next, you may find it convenient
+to save your command string in a file and then have readDB read
+the commands from the file. The command string may be on one
+line just as you would type it at the readDB prompt, or may be
+spread over multiple lines. To process the command file use the
+CMDFILE option followed by the file name of command file. When
+you use the CMDFILE option, any other options on the readDB
+command line are ignored.
+---------------------------------------------------------------
+
+SCHEMA OPTION
+   SCHEMA schema-name
+The CSS 3.0 tables containing the data used by readDB are
+contained in a schema which you may or may not have access to
+in your Oracle account. If you do not own the schema or have
+a set of aliases to the tables in the schema then you must
+supply the schema name to readDB. This can be done on the
+command line i.e. 
+
+ readDB ... options ... schema mena ... other options ...
+ 
+or else can be done using a configuration file.
+---------------------------------------------------------------
+
+
+
+CONNECT OPTION
+   CONNECT logname/passwd
+A login name and password are required to connect to the Oracle
+database. These are concatenated by readDB into a connect string
+of the form   loginName/Password  . ReadDB constructs a default
+connect string from your unix login name which is simply
+login/login. If this matches your Oracle name and password you
+do not need to do anything else to connect to Oracle using
+readDB. Otherwise, specify the connect string yourself either on
+the command line or in a configuration file. 
+---------------------------------------------------------------
+
+
+
+SHOWDEFAULTS OPTION
+   SHOWDEFAULTS
+A number of parameters are likely to stay the same from query to
+query, and readDB keeps these parameters in memory. To see the
+current state of these "sticky" parameters use the SHOWDEFAULTS
+command. A typical listing follows.
+
+Database to use:       mena
+Max rows to return:    50
+Oracle login name:     your_database_login
+Oracle login password: your_database_password
+Restrict phases to:    
+Restrict authors to:   
+Crop this from path:   
+Prepend this to path:  
+Case sensitivity is:   OFF
+
+(STA)               is an alias for     (STANAME)
+(STATION)           is an alias for     (STANAME)
+(CHAN)              is an alias for     (COMPONENT)
+(EVLA)              is an alias for     (SRCLAT)
+(EVLO)              is an alias for     (SRCLON)
+(EVDP)              is an alias for     (SRCDEP)
+(STIME)             is an alias for     (STARTTIME)
+(START)             is an alias for     (STARTTIME)
+(ETIME)             is an alias for     (ENDTIME)
+(END)               is an alias for     (ENDTIME)
+(STLA)              is an alias for     (STALAT)
+(STLO)              is an alias for     (STALON)
+(STDP)              is an alias for     (INSTDEPTH)
+(DEF)               is an alias for     (SHOWDEFAULTS)
+(AUTH)              is an alias for     (AUTHLIST)
+(EVID)              is an alias for     (EVENTID)
+(SQL)               is an alias for     (SHOWSQL)
+(CF)                is an alias for     (CMDFILE)
+
+
+Many of these defaults can be set on the readDB command line.
+However, you may find it easier to set them in a configuration
+file. The configuration file consists of a two types of
+entries; keyword=value pairs  (one per line), and aliases.
+The first part of the listing above shows the keyword-value
+state and the second shows the current aliases.
+
+The following is an example of the contents of the
+configuration file that produced the listing above.
+
+! This is a comment
+# This is a comment
+; This is also a commment
+
+MaxRowsInQuery = 50;
+OracleLoginName = your_database_login;
+OraclePassword = your_database_password  !This is a trailing comment
+SCHEMA = mena;
+SID = tvp2;
+
+Phaselist = PcP, PcS, Pdiff,  Pg, Pn, Pp, Px, Rg, S, SS, Sb
+Authlist = flori, joe, bill,tom, dick,	harry
+
+CaseSensitivity = off
+
+alias sta staname
+alias station staname
+
+alias chan component 
+alias evla srclat
+alias evlo srclon
+alias evdp srcdep
+
+alias stime starttime
+alias start starttime
+alias etime endtime
+alias end endtime
+
+alias stla stalat
+alias stlo stalon
+alias stdp instdepth
+
+alias def showdefaults
+alias auth authlist
+alias evid eventid
+alias sql showsql
+alias cf cmdfile
+
+
+The configuration file can be located anywhere in the file
+system where you have read access, and can have any legal name.
+However, you must make it known to readDB by setting the
+environment variable DBSELECT_CONFIG_FILE to the fully-qualified
+filename, e.g.
+
+setenv DBSELECT_CONFIG_FILE=/us/dodge/SeisMgr/dbselect.ini
+---------------------------------------------------------------
+
+
+
+
+SRCLAT, SRCLON, SRCDEP OPTIONS
+   SRCLAT lat1 lat2
+   SRCLON lon1 lon2
+   SRCDEP dep1 dep2
+The SRCLAT, SRCLON, and SRCDEP options can be used either singly
+or together to restrict seismograms read by readDB to sources
+contained within a certain geographical range. Each of these
+options requires both a minimum and maximum value. In the case
+of longitudes, first argument values greater than 180 have 360
+subtracted so that you may make selections like: SRCLON 355 20
+and get seismograms from sources between 5 degrees west
+longitude to 20 degrees east longitude rather than from the
+complementary range of longitudes.
+---------------------------------------------------------------
+
+
+SRCBOX OPTION
+   SRCBOX file=filename or lat lon lat lon lat lon ...
+ReadDB can also restrict seismograms to events with origins
+inside a user-defined polygonal geographic region. The 
+polygon is defined by a set of lat-lon pairs which are the
+vertices of the polygon. The vertices must be listed in
+counter-clockwise order, and the last vertex is expected to be
+the same as the starting vertex. The vertices may either be
+listed on the command line after the SRCBOX keyword or else
+they may be contained in a file with one vertex per line. To
+use the file, give its name to readDB after the SRCBOX keyword
+For example: SRCBOX file=Myfile.polygon
+---------------------------------------------------------------
+
+
+
+
+SRCTYPE OPTION
+   SRCTYPE type1, type2 ...
+You can restrict retrieved waveforms to be just those generated
+by certain types of sources by using the SRCTYPE keyword
+followed by one or more source specifiers. Example source
+specifiers are:
+--------------------------
+-       Source type not set
+eq      Earthquake
+ex      Other explosion
+qmt     Quarry or mining-induced events: tremors and rockbursts
+u       Unknown source type
+---------------------------------------------------------------
+
+
+
+SRCCIRCLE OPTION
+   SRCCIRCLE  latCenter, lonCenter, radius (km)
+The SRCCIRCLE option is used to select seismograms from events
+with epicenters within a specified distance from some point on
+the earth's surface. You must specify the latitude and longitude
+of the circle center and its radius in kilometers.
+---------------------------------------------------------------
+
+
+
+
+MBMAG, MLMAG, MSMAG OPTIONS
+   MBMAG minmag maxmag
+   MLMAG minmag maxmag
+   MSMAG minmag maxmag
+The MBMAG, MLMAG, and MSMAG options are used to restrict
+waveforms by source magnitude. Each of these options must be
+followed by a minimum value and a maximum value. To restrict by
+Mb use MBMAG, to restrict by Ml use MLMAG, and to restrict by Ms
+use MSMAG. Note that if the source has not been assigned a
+magnitude of the type specified, then it will be excluded.
+---------------------------------------------------------------
+
+
+
+EVENTID OPTION
+   EVENTID  file=filename or ID ID ID ...
+You can restrict the seismograms selected by readDB to be
+associated with a specific set of events by providing a list of
+evids to readDB. After the EVENTID option you can supply a 
+comma- or space-delimited list of evids. Alternatively, give 
+the name of a file containing the evid list (one evid per line)
+---------------------------------------------------------------
+
+
+
+STANAME, COMPONENT OPTIONS
+   STANAME name1, name2, ...
+   COMPONENT comp1 comp2, ...
+The STANAME and COMPONENT options may be used either singly or
+in combination to restrict the waveforms by station and/or
+component. Stations to select from can be listed on the 
+command line in a space- or comma-delimited list, or the station
+names can be put in a file (one station name per line) and the
+file name can be specified on the command line using the syntax
+file=filename. Components may only be specified on the command
+line. 
+
+To see what stations and components are currently available in
+the database you can use the option:
+   HELP STANAME
+   
+This will produce a complete listing of available stations
+and components available for each station. A short example
+is shown below.
+
+STATION   COMP  Nobs      COMP  Nobs      COMP  Nobs      
+_____________________________________________________
+AAE        BHE(    6)      BHN(    6)      BHZ(    5) 
+AAE        SHN(   13)      SHZ(   13)
+ABKT       BHE(  664)      BHN(  663)      BHZ(  671)  
+ABKT       EHN(  178)      EHZ(  178)      ELE(   10)   
+ABKT       LHZ(  243)      LLE(    6)      LLN(    7)    
+ABKT
+AFIF       BHE(  445)      BHN(  434)      BHZ(  444)
+AGD        MHE(   10)      MHN(   10)      MHZ(   10)   
+ANTO       BHE(  241)      BHN(  166)      BHZ(  166)   
+ANTO       LLN(   12)      LLZ(   11)      SHZ(   60)    
+ANTO       VHN(  106)      VHZ(  112)
+APL        SHE(    2)      SHN(    2)      SHZ(    2)
+AQU        BHE(    1)      BHN(    1)      BHZ(    1)
+ARU        BHE(    3)      BHN(    3)      BHZ(    4)   
+ASCN       BHE(    1)      BHN(    1)      BHZ(    1)
+ATD        BHE(   42)      BHN(   42)      BHZ(   42)   
+ATD        MHN(    1)      MHZ(    1)      VHE(   68)    
+
+
+You can also get information about a specific station using the
+option:
+   HELP STANAME station-name
+
+For example here is information for station ABKT.
+   
+ABKT    (Alibek, Turkmenistan)
+_____________________________________________________________________________
+Latitude  =             37.930401
+Longitude =             58.118900
+Elevation =             0.678000
+Ondate    =             1993115
+Offdate   =             Still operating
+StaType   =             Single station
+-----------------------------------------------------------------------------
+    COMP ONDATE  OFFDATE  EDEPTH  HANG   VANG  DESCIPTION
+-----------------------------------------------------------------------------
+     BHE 1993115 PRESENT  0.0070  90.00  90.00 broad-band east
+     BHN 1993115 PRESENT  0.0070   0.00  90.00 broad-band north
+     BHZ 1993115 PRESENT  0.0070  -1.00   0.00 broad-band vertical
+     BLE 1993115 PRESENT  0.0070  90.00  90.00 broad-band-logain east
+     BLN 1993115 PRESENT  0.0070   0.00  90.00 broad-band-logain north
+     BLZ 1993115 PRESENT  0.0070  -1.00   0.00 broad-band-logain vertical
+     EHE 1993115 PRESENT  0.0070  90.00  90.00 extremely-short-period east
+     EHN 1993115 PRESENT  0.0070   0.00  90.00 extremely-short-period north
+     EHZ 1993115 PRESENT  0.0070  -1.00   0.00 extremely-short-period broad-band vertical
+     ELE 1993115 PRESENT  0.0070  90.00  90.00 extremely-short-period-lo east
+     ELN 1993115 PRESENT  0.0070   0.00  90.00 extremely-short-period-lo north
+     ELZ 1993115 PRESENT  0.0070  -1.00   0.00 extremely-short-period-lo vertical
+     LHE 1993115 PRESENT  0.0070  90.00  90.00 long-period east
+     LHN 1993115 PRESENT  0.0070   0.00  90.00 long-period north
+     LHZ 1993115 PRESENT  0.0070  -1.00   0.00 long-period vertical
+     LLE 1993115 PRESENT  0.0070  90.00  90.00 long-period-lo east
+     LLN 1993115 PRESENT  0.0070   0.00  90.00 long-period-lo north
+     LLZ 1993115 PRESENT  0.0070  -1.00   0.00 long-period-lo vertical
+     VHE 1993115 PRESENT  0.0070  90.00  90.00 very-long-period east
+     VHN 1993115 PRESENT  0.0070   0.00  90.00 very-long-period north
+     VHZ 1993115 PRESENT  0.0070  -1.00   0.00 very-long-period vertical
+     VME 1993115 PRESENT  0.0070  90.00  90.00 very-long-period-lo east
+     VMN 1993115 PRESENT  0.0070   0.00  90.00 very-long-period-lo north
+     VMZ 1993115 PRESENT  0.0070  -1.00   0.00 very-long-period-lo vertical
+_____________________________________________________________________________
+
+
+
+STALAT, STALON, INSTDEPTH  OPTIONS
+   STALAT    minlat maxlat
+   STALON    minlon maxlon
+   INSTDEPTH mindepth maxdepth
+The STALAT, STALON, and INSTDEPTH options can be used singly
+or together to restrict seismograms read by readDB to stations
+contained within a certain geographical range. Each of these
+options requires both a minimum and maximum value. In the case
+of longitudes, first argument values greater than 180 have 360
+subtracted so that you may make selections like: STALON 355 20
+and get seismograms from sources between 5 degrees west
+longitude to 20 degrees east longitude rather than from the
+complementary range of longitudes.
+---------------------------------------------------------------
+
+
+
+STARTTIME, ENDTIME OPTIONS
+   STARTTIME  YYYY/DDD/HH:MM:SS.SSS or YYYY/MM/DD/HH:MM:SS.SSS
+The STARTTIME and ENDTIME options are used to select waveforms by
+time. If a StartTime is specified then only waveforms with begin
+times >= the specified time will be selected. If the EndTime is 
+specified then only waveforms with endtimes <= the specified
+time will be used. 
+
+There are two basic formats for specifying time, one using 
+month/day format, and the other using day-of-year format.
+
+      YYYY/MM/DD/HH:MM:SS.SSS
+      YYYY/DDD/HH:MM:SS.SSS
+
+legal separators between tokens are '/ - : ' as well as the space
+and tab characters.
+
+Subsets of the formats are also supported as long as they are not
+ambiguous. For instance YYYY DDD HH will be interpreted as
+YYYY/DDD/HH:00:00.000. Note that if day-of year format is used and
+if the day-of year is given with only 2 digits, the string will be
+ambiguous unless the remainder of the string is complete to the
+second and the second has a non-zero number of milliseconds. I.E.
+1997 12 22 13 will be ambiguous, but 1997 12 22 13.45 will not be.
+-----------------------------------------------------------------
+
+
+
+SRCDIST, SRCDELT OPTIONS 
+   SRCDIST  minDist maxDist (in km), minDist defaults to 0
+The SRCDIST and SRCDELT options both are used to restrict
+retrieved seismograms to be from events with epicenters within
+a distance range from a selected station. SRCDIST expects that
+the distance will be specified in kilometers and SRCDELT expects
+the distance to be in degrees. Both options require that one
+station has been selected using the STANAME option. If just one
+distance is specified, then both commands treat that distance as
+a maximum. If two distances are specified, then the selected
+events will be within the distance range bounded by the two
+values.
+---------------------------------------------------------------
+
+
+
+QUADRANT OPTION
+   QUADRANT   minAzimuth maxAzimuth
+The QUADRANT option is used to select seismograms from events
+with epicenters within a specified back-azimuth range from a
+selected station. You must specify one station using the
+STANAME option and you must specify a minimum back-azimuth
+and a maximum back-azimuth.
+---------------------------------------------------------------
+
+
+
+PHASELIST OPTION
+   PHASELIST phase1, phase2, ...
+By default readDB will find all picks associated with each
+seismogram it retrieves. If you wish to only get picks of
+certain phases you can specify your desired phases, either
+in the configuration file or on the readDB command line. To
+specify one or more phases on the command line, use the
+PHASELIST option followed by a space- or comma-delimited list
+of phases. You can find what phases are currently available
+in the database using the option:
+   HELP PHASELIST
+
+This will produce a listing like:
+PHASE   Nobs
+____________
+CE      22
+L3.2    24
+LQ      244
+LR      460
+Lg      821
+M2      9
+P       1296
+PKKPbc  1
+PKPdf   2
+PP      64
+Pb      1
+PcP     47
+PcS     4
+Pdiff   4
+Pg      187
+Pn      903
+Pp      9
+Px      6
+Rg      569
+S       649
+SS      49
+Sb      1
+ScP     22
+ScS     11
+Sg      2
+Sn      217
+Sx      52
+pP      16
+sP      2
+sS      1
+---------------------------------------------------------------
+
+
+
+AUTHLIST OPTION
+   AUTHLIST auth1 auth2 ...
+By default readDB will find all picks associated with each
+seismogram it retrieves. If you wish to only get picks by
+certain authors you can specify your preferred authors, either
+in the configuration file or on the readDB command line. To
+specify one or more authors on the command line, use the
+AUTHLIST option followed by a space- or comma-delimited list
+of authors. To find what pick authors are available in the database
+use the option READDB HELP AUTHLIST.
+
+Note:  Before inlcuding author names in the AUTHLIST, be certain that
+       these authors are in the author list used to read data from
+       the CSS data buffers to the SAC data buffers.  For details,
+       use HELP PICKPREFS and HELP READCSS.
+
+
+SEE COMMANDS:
+    PICKPREFS, PICKAUTHOR, PICKPHASE, READCSS, READ
+

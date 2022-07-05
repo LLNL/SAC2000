@@ -1,0 +1,863 @@
+Introduction
+   SSS is primarily a package for doing signal stacking (i.e. summation or 
+beamforming).
+   Each signal (i.e. SAC file) has properties such as a static delay, epicentral
+distance, weighting factor, and polarity associated with it.
+The dynamic delays can be calculated using a normal moveout or refracted
+wave velocity model.
+   Certain delay properties can be automatically incremented between summations.
+Files are easily added to or removed from the stack file list.
+The time window for the stack is easily adjusted.
+Files which do not contain data throughout the stack time window are filled
+with zeros.
+   The stack file list can be plotted with or without the summation.
+Each summation can be saved on disk for later use.
+A record section plot is also included in this subprocess.
+
+This is a SAC subprocess.
+   A subprocess is like a small program within the main SAC program.
+You start a subprocess by typing its name (SSS in this case.)
+You can terminate it and return to the main program using the quitsub
+command.  You can also terminate SAC from within a subprocess using
+the QUIT command.
+   While within a subprocess, you can execute any command belonging to
+that subprocess plus a limited number of main SAC commands.
+A list of the allowed main SAC commands is included in this document.
+
+SAC Signal Stacking Subprocess Manual
+
+The Commands 
+
+Overview
+The remainder of this manual contains the documentation on each of
+the SSS commands. They are in alphabetical order and are also summarized below.
+The format and notation is the same as the SAC Command Reference Manual.
+A list of the allowed main SAC commands is also shown below.
+You can also use all of the SAC macro features in this subprocess.
+
+SSS Commands
+
+ADDSTACK          Add a new file to the stack file list.
+CHANGESTACK       Change properties of files currently in the stack file list.
+DELETESTACK       Deletes one or more files from the stack file list.
+DELTACHECK        Change the sampling rate checking option.
+DISTANCEAXIS      Define the record section plot distance axis parameters.
+DISTANCEWINDOW    Controls distance window properties on subsequent record 
+		  section plots.
+GLOBALSTACK       Sets global stack properties.
+INCREMENTSTACK    Increments properties for files in the stack file list.
+LISTSTACK         Lists the  properties of the files in the stack file list.
+PLOTRECORDSECTION Plots a record section of the files in the stack file list.
+PLOTSTACK         Plots the files in the stack file list.
+QUITSUB           Terminates the Signal Stacking Subprocess.
+SUMSTACK          Sums the files in the stack file list.
+TIMEAXIS          Controls the time axis properties on subsequent record 
+		  section plots.
+TIMEWINDOW        Sets the time window limits for subsequent stack summation.	
+VELOCITYMODEL     Sets stack velocity model parameters for computing 
+		  dynamic delays.
+VELOCITYROSET     Controls placement of a velocity roset on subsequent 
+		  record section plots.
+WRITESTACK        Writes a stack summation to disk.
+ZEROSTACK         Zeros or reinitializes the signal stack.
+
+Main SAC Commands
+This is a list of the allowed main SAC commands.
+
+
+Their abbreviated names are also allowed.
+
+AXES	        BEGINDEVICES	BEGINFRAME
+BEGINWINDOW	BORDER		COLOR
+COMCOR		COPYHDR		DATAGEN
+ECHO		ENDDEVICES	ENDFRAME
+ERASE		EVALUATE	FLOOR
+GETBB		GRID		GTEXT
+HELP		INSTALLMACRO	LISTHDR
+LINE		LINLIN		LINLOG
+LOGLAB		LOGLIN		LOGLOG
+MACRO		MESSAGE		PAUSE
+PLABEL		PLOTC		QDP
+QUIT		READBBF		REPORT
+SETBB		SETDATADIR	SETDEVICE
+SETMACRO	SGF		SYMBOL
+SYNTAX		SYSTEMCOMMAND	TICKS
+TITLE		TSIZE		VSPACE
+WAIT		WINDOW		WRITEBBF
+XDIV		XFUDGE		XFULL
+XGRID		XLABEL		XLIM
+XLIN		XLOG		XVPORT
+YDIV		YFUDGE		YFULL
+YGRID		YLABEL		YLIM
+YLIN		YLOG		YVPORT
+
+ADDSTACK
+
+SUMMARY:           Add a new file to the stack file list.
+
+SYNTAX:            [A]DD[S]TACK filename [property ...]
+                   where property is one or more of the following:
+			[W]EIGHT v
+			[DI]STANCE v
+			[DE]LAY v [[S]ECONDS|[P]OINTS]
+			[I]NCREMENT v [[S]ECONDS|[P]OINTS]
+			[N]ORMAL
+			[R]EVERSE
+
+INPUT:
+                         filename  Name of the file to be added to the 
+				   stack file list.
+                       [W]EIGHT v  Weighting factor for this file in 
+				   the range zero to one.  Each data point is 
+				   multiplied by this value when the stack 
+				   is summed.
+                     [DI]STANCE v  Station to epicenter distance in 
+				   kilometers for this file.  This is 
+				   used to calculate dynamic time delays.
+    [DE]LAY v [[S]ECONDS|[P]OINTS] Static time delay to apply to file.
+                                   This delay is in either seconds or 
+				   number of data points.
+[I]NCREMENT v [[S]ECONDS|[P]OINTS] Static time delay increment for this file.
+                                   This increment is in either seconds or 
+				   number of data points.  The static time 
+				   delay is incremented by this ammount each 
+				   time the  incrementstack command is executed.
+                          [N]ORMAL File has normal polarity.
+                        [R]EVERSED File has reversed polarity.
+                                   (Each data point in the signal is multiplied
+				   by -1.0 when the stack is summed.)
+
+TYPE:              Parameter-setting
+
+DEFAULTS VALUES:   Each file is given the global property value if no local 
+		   one is entered.  The default units for the DELAY and 
+		   INCREMENT options is SECONDS.
+
+DESCRIPTION
+There are five properties associated with each stack list file.
+
+They are:
+   the weighting factor.
+
+   the station to epicenter distance.
+
+   The static time delay in either seconds or number of data points.
+
+   The static time delay increment in either seconds or number of data points.
+
+   The polarity of the file, either normal or reversed.
+
+There is a global value associated with each of these properties.
+They are defined by the globalstack command.
+When a file is added to the stack file list, that file's properties 
+will be set to the global value if no local value is given.  
+The changestack command can be used to change a file's
+properties after it has been added to the stack file list.
+
+EXAMPLES
+The following examples illustrate several of the features of the
+Signal Stacking Module.  Suppose you entered the following set of commands:
+
+	u:  GLOBALSTACK DELAY 1.0 INCREMENT 0.03
+	u:  ADDSTACK FILEA DELAY 2.0
+	u:  ADDSTACK FILEB DELAY 3.0 INCREMENT 0.01 REVERSED
+	u:  ADDSTACK FILEC
+	u:  ADDSTACK FILED WEIGHT 0.5
+
+The first command changes the global property values for time delay and 
+time delay increment.
+The other global properties have their default values.  
+FILEA's properties would be the global ones except for the time delay.
+FILEB's properties would be the global ones except for the time delay,
+the time delay increment, and the signal polarity.
+FILEC's properties would be the same as the global ones.
+FILED's properties would be the global ones except for the weighting factor.
+Now you enter:
+
+	u:  SUMSTACK
+
+The summation is done on the four files in the stack file list:
+FILEA, FILEB, FILEC, and FILED.  
+The time delays are  2.0, 3.0, 1.0, and 1.0 respectively. 
+The polarity of FILEC is reversed.
+FILED's weighting in the summation is half that of the other files.
+Now you enter:
+
+	u:  INCREMENTSTACK
+	u:  CHANGESTACK FILEC NORMAL
+	u:  SUMSTACK
+
+This stack is performed with the following delays:
+2.03, 3.01, 1.03, and 1.03.  The polarity of FILEC is now normal.
+Now you enter:
+
+	u:  DELETESTACK FILED
+	u:  INCREMENTSTACK
+	u:  SUMSTACK
+
+This third stack is performed on the three files:
+FILEA, FILEB, and FILEC.  The delays are 2.06, 3.02, and 1.06 respectively.
+
+ERRORS MESSAGES:
+
+    5108: Maximum length of stack file list exceeded.
+    1306: Illegal operation on unevenly spaced file
+          - stacking module requires evenly spaced data files.
+    1307: Illegal operation on spectral file
+    5109: Sampling intervals are not equal.
+          - the sampling rates for all files in the stack file list must agree
+            to within a given tolerance.
+          - the SRCHECK command can turn this check off or change the tolerance.
+          - the default check is for agreement within machine roundoff error.
+
+
+LIMITATIONS
+The maximum number of files in the stack file list is limited
+to the maximum number of data files allowed by SAC.
+
+SEE COMMANDS: GLOBALSTACK, SUMSTACK, CHANGESTACK, INCREMENTSTACK, DELETESTACK
+
+CHANGESTACK
+
+SUMMARY:     Change properties of files currently in the stack file list.
+
+SYNTAX:      [C]HANGE[S]TACK filename|filenumber property {property}
+             where property is one or more of the following:
+		[W]EIGHT v
+		{DI}STANCE v
+		[DE]LAY v {S]ECONDS]|[P]OINTS}
+		[I]NCREMENT v {[S]ECONDS|[P]OINTS}
+		[N]ORMAL
+		[R]EVERSED
+
+INPUT:
+                      filename     The name of the file in the stack file list.
+                      filenumber   The number of the file in the stack 
+			  	   hfile list.
+                      [W]EIGHT  v  Weighting factor for this file in the 
+				   range zero to one.  Each data point is 
+				   multiplied by this value when the stack 
+				   is summed.
+                     [DI]STANCE  v Station to epicenter distance in 
+				   kilometers for this file.  This is used 
+				   to calculate dynamic time delays.
+    [DE]LAY v {[S]ECONDS|[P]OINTS} Static time delay to apply to file.
+                                   This delay is in either seconds or 
+				   number of data points.
+[I]NCREMENT v {[S]ECONDS|[P]OINTS} Static time delay increment for this file.
+                                   This increment is in either seconds or 
+				   number of data points.  The static time 
+				   delay is incremented by this ammount each 
+				   time the  INCREMENTSTACK command is executed.
+                         [N]ORMAL  File has normal polarity.
+                       [R]EVERSED  File has reversed polarity.  (Each data 
+				   point in the signal is multiplied by -1.0 
+				   when the stack is summed.)
+
+DESCRIPTION
+This command allows you to change any of the properties associated with
+files in the stack file list.  These properties are discussed in more detail inthe  ADDSTACK command and an example of the use of this command is given there.
+This command leaves all other properties for all other files unchanged.
+
+ERROR MESSAGES: 5106: File name not in stack file lists:
+
+SEE COMMNADS: ADDSTACK
+
+DELETESTACK
+
+SUMMARY:          Deletes one or more files from the stack file list.
+
+SYNTAX:           [D]ELETE[S]TACK filename|filenumber {filename|filenumber...}
+
+INPUT:
+       filename   The name of the file in the stack file list.
+     filenumber   The number of the file in the stack file list.
+
+TYPE:             Parameter-setting
+
+EXAMPLES:         See the example for the ADDSTACK command.
+
+ERROR MESSAGES:   5106: File name not in stack file list
+		  5107: File number not in stack file list
+
+SEE COMMANDS:     ADDSTACK
+
+DELTACHECK 
+
+SUMMARY:           Change the sampling rate checking option.
+
+SYNTAX:            [D]ELTA[C]HECK ON|OFF|[R]OUNDOFF|v
+
+INPUT:
+         ON        Turn sampling rate checking option on.
+        OFF        Turn sampling rate checking option off.
+   ROUNDOFF        Turn sampling rate checking option on and 
+                   force sampling rates to agree within machine roundoff factor.
+          v        Turn sampling rate checking option on and 
+	           force sampling rates to agree within a tolerance of $v$.
+
+DEFAULTS VALUES:   DELTACHECK ROUNDOFF
+
+TYPE:              Parameter-setting
+
+DESCRIPTION
+This command changes the sampling rate checking option.
+When this option is off, no check is made to see if the sampling rates
+for each of the files in the stack file list agree.
+When this option is on, then the sampling rates must agree within a given
+tolerance or it is considered an error.
+The tolerance can be set to a factor near the roundoff error for a particular
+machine or it can be set to a specific value.
+The absolute value of the difference between all sampling rates must be
+less than or equal to this tolerance in order to be allowed.
+
+ERROR MESSAGES:
+The check is done and the error is reported as files are added to the
+stack file list (see  ADDSTACK).
+
+DISTANCEAXIS
+
+SUMMARY:           Define the record section plot distance axis parameters.
+
+SYNTAX:            [D]ISTANCE[A]XIS FIXED v|SCALED v
+
+INPUT:
+      FIXED v      Force axis length to be $v$ cm long.
+     SCALED v      Allow the axis length to be scaled to the data.
+                   The axis length (in cm) will be the range of the axis 
+		   (in km.) divided by v.
+
+DEFAULTS VALUES:   DISTANCEAXIS FIXED 35
+
+TYPE:              Parameter-setting
+
+DESCRIPTION
+This command defines the properties of the distance axis for subsequent
+record section plots (see  PLOTRECORDSECTION.)
+The length of the axis can be a fixed size or it can be scaled to the
+range of the axis variable (distance in this case.)
+The TIMEAXIS command controls the time axis properties.
+
+EXAMPLES
+If you entered the following command:
+
+	u:  DISTANCEAXIS SCALED 2.0
+
+and the minimum and maximum distances in the data set being plotted are
+150 and 300 km respectively, the distance axis would be 75 cm long.
+
+KNOWN BUGS:
+The y to x aspect ratio defined by this command and by the  TIMEAXIS
+command is correct on plots to any device.  
+The physical size requested is ignored when plotting to an interactive
+device (e.g. TERMINAL, XWINDOWS)
+If the SGF device is requested, the physical size is stored in these files.
+The current SGF plot programs do not have the capability to make arbitrary
+sized plots (i.e. panelling).  This panelling option is planned for a
+future release.
+
+SEE COMMANDS: PLOTRECORDSECTION, TIMEAXIS
+
+DISTANCEWINDOW
+
+SUMMARY:            Controls the distance window properties on subsequent 
+		    record section plots.
+SYNTAX:             [D]ISTANCE[W]INDOW [options]
+                    where options is one or more of the following:
+                         [U]SEDATA|[W]IDTH v|[F]IXED v1 v2
+                         [UN]ITS [K]ILOMETERS|[D]EGREES
+
+INPUT:
+         USEDATA    Use the minimum and maximum values of the distance 
+		    properties of the files in the stack file list.
+         WIDTH v    Use the minimum value of the distance property of 
+		    the files in the stack file list but force the width to 
+		    be a fixed value.  The maximum distance is then set to 
+		    the minimum distance plus v.
+     FIXED v1 v2    Fix the minimum and maximum distances to be v1 and v2 respectively.
+UNITS KILOMETERS    Set the distance window units to be in kilometers.
+UNITS DEGREES       Set the distance window units to be in degrees of arc.
+
+DEFAULTS VALUES:    DISTANCEWINDOW USEDATA UNITS KILMETERS
+
+TYPE:               Parameter-Setting
+
+KNOWN BUGS: The KILOMETER option is not currently implemented.
+
+SEE COMMANDS: PLOTRECORDSECTION
+
+
+GLOBALSTACK
+
+SUMMARY:           Sets global stack properties.
+
+SYNTAX:            [G]LOBAL[S]TACK property [property ...]
+                   where property is one or more of the following:
+                        [W]EIGHT v
+                        [DI]STANCE v
+                        [DE]LAY v [[S]ECONDS|[P]OINTS]
+                        [I]NCREMENT v [[s]ECONDS|[P]OINTS]
+                        [N]ORMAL
+                        [R]EVERSED
+
+INPUT:
+                        [W]EIGHT v   Global weighting factor in the range 
+				     zero to one.
+                      [DI]STANCE v   Global station to epicenter distance 
+				     in kilometers.
+    [DE]LAY v [[S]ECONDS|[P]OINTA]   Global static time delay.  This delay is 
+				     in either seconds or number of data points.
+[I]NCREMENT v [[S]ECONDS|[P]OINTS]   Global static time delay increment.  This 
+				     increment is in either seconds or number 
+				     of data points.
+                          [N]ORMAL   Normal global polarity property.
+                        [R]EVERSED   Reversed global polarity property.
+
+TYPE: Parameter-setting
+
+DESCRIPTION
+This command allows you to define global stack properties.
+These global properties are associated with each file as it is added to the stack
+file list (see ADDSTACK) unless local values are given for that file.
+These properties are discussed in more detail in
+the  ADDSTACK command and an example of the use of this command is given there.
+
+SEE COMMANDS: ADDSTACK
+
+
+INCREMENTSTACK 
+
+SUMMARY:            Increments properties for files in the stack file list.
+
+SYNTAX:             [I]NCREMENT[S]TACK
+
+DEFAULTS VALUES:    All property iNCREMENT values are initially 0.
+
+DESCRIPTION
+The properties that can be incremented are the static time delay,
+the apparent velocity, and the velocity model intercept time.
+Property increment values of 0. obviously leave those properties unchanged.
+The apparent velocity or the velocity model intercept time can be incremented,
+and the other one calculated in order to maintain a zero delay at a
+specified point.
+An example of this is shown below.
+
+EXAMPLES
+An example of the use of this command to INCREMENT static time delays is
+shown in the ADDSTACK command.  An example of the use of this command
+to increment dynamic delays is given below:
+
+	u: ADDSTACK FILEA 
+	u: ADDSTACK FILEB
+	u: ADDSTACK FILEC 
+	u: ADDSTACK FILED 
+	u: VELOCITYMODEL 1 REFR VAPP 7.9 VAPPI 0.1 T0VM CALC DIST 320. TVM 45.
+	u: SUMSTACK
+	u: WRITESTACK STACK1
+	u: INCREMENTSTACK
+	u: SUMSTACK
+	u: WRITESTACK STACK2
+	u: INCREMENTSTACK
+	u: SUMSTACK
+	u: WRITESTACK STACK3
+
+The above commands will produce three summations, the results being
+stored in SAC files STACK1, STACK2, and STACK3.
+The refracted wave velocity model is used and the apparent velocities, VAPP
+are 7.9, 8.0 and 8.1 respectively.
+The velocity model intercept time, T0VM, is calculated in each case
+to maintain a zero delay at the point 320. km and 45. seconds.
+
+SEE COMMANDS: VELOCITYMODEL
+
+LISTSTACK
+
+SUMMARY:            Lists the properties of the files in the stack file list.
+
+SYNTAX:             [L]IST[S]TACK {[N]ARROW |[W]IDE}
+
+INPUT:
+        NARROW      Use the narrow report format.  Two lines of about 
+		    70 characters in width are output for each file.
+          WIDE      Use the wide report format.  A single line of about 
+		    120 characters in width is output for each file.
+
+DEFAULT VALUES:     LISTSTACK NARROW
+
+TYPE:               Action-producing
+
+PLOTRECORDSECTION
+
+SUMMARY:      Plots a record section of the files in 
+	      the stack file list.
+
+SYNTAX:       [P]LOT[R]ECORD[S]ECTION [ options ]
+              where options are one or more of the following:
+                  [L]ABLES ON | OFF | headerfield
+                  [O]RIGIN [L]EFT | [R]IGHT
+                  [R]EFERENCELINE ON | OFF
+                  [S]IZE v
+                  [W]EIGHT ON | OFF
+                  [P]OLARITY ON | OFF
+                  CURSOR ON | OFF
+                  REDUCED ON | OFF | VELOCITY number | PHASE name
+
+INPUT:
+         LABELS ON | OFF    Turn the file labeling option on or off.  When 
+			    this option is on, each file is labeled with 
+			    header field.  
+      LABELS headerfield    Turn the file labeling option on and set the 
+			    name of the header field.
+      ORIGIN LEFT |RIGHT    Place the origin of the distance axis on the 
+			    left or right side.
+  REFERENCELINE ON | OFF    Turn reference line option on or off.  When this 
+			    option is on, a vertical dotted line is drawn 
+			    at the distance property value for each file.
+                 SIZE v
+        WEIGHT ON | OFF     Turn the file weighting option on or off.
+      POLARITY ON | OFF     Turn the file polarity option on or off.
+        CURSOR ON | OFF     The cursor on option allows the user to 
+			    measure apparent velocity by moving the cursor 
+			    and typing v1 and v2 to mark the points.  Once 
+			    the v2 is selected, the apparent velocity is 
+			    printed on the output device and stored in a
+                            blackboard variable, vapp.  Multiple v2 values 
+			    can be set by only the latest will be stored in 
+			    the blackboard variable.  Under the cursor option,
+                            only v1 and v2 are availbe to mark points and 
+			    q to quit.
+REDUCED ON | OFF | VELOCITY number | PHASE name     Reduced travel time 
+			    curves can be computed relative to a specific 
+			    velocity or a phases from the travel time curves.  
+			    See TRAVELTIME manual page.
+
+DEFAULTS VALUES:  PLOTRECORDSECTION LABELS FILENAME ORIGIN LEFT
+                  REFERENCELINE ON SIZE 0.1 WEIGHT ON polarity ON
+
+
+DESCRIPTION
+This command plots the files in the stack file list in a record section format.
+The effect of a particular velocity model can be easily seen with this plot.
+See the example below.
+The y axis is time and the x axis is epicentral distance.
+The files are plotted along the time axis.
+The zero amplitude of each file is plotted at its epicentral distance
+along the x axis.
+A distance must be defined for all files in the stack file list for this
+plot to be generated.
+The distance can come from the header or it can be defined in the DISTANCE
+option of the  GLOBALSTACK,  ADDSTACK, or  CHANGESTACK command.
+The  DISTANCEWINDOW and  TIMEWINDOW commands control how much data
+will be displayed.
+The  DISTANCEAXIS and  TIMEAXIS commands control the size of each axis
+and thus the aspect ratio of the complete plot.
+Only the  TIMEWINDOW command is required before executing this command.
+Dynamic delays are controlled by the use of
+the  VELOCITYMODEL command.
+A line showing the effects of a second velocity model is also controlled
+by the  VELOCITYMODEL command.
+A velocity rosette showing the effects of other velocities can be placed on
+this plot. It is controlled by the  VELOCITYROSET command.
+Static delays if they have been defined are also applied to each of the signals.
+
+EXAMPLES
+The following commands produced the plot shown on the next page.
+
+$add commands here$
+
+ERRORS MESSAGES: 5103: No time window defined.
+
+SEE COMMANDS: 
+ GLOBALSTACK,  ADDSTACK,  CHANGESTACK
+ DISTANCEWINDOW,  TIMEWINDOW,  DISTANCEAXIS,  TIMEAXIS,
+ VELOCITYMODEL,  VELOCITYROSET
+
+
+PLOTSTACK
+
+SUMMARY:              Plots the files in the stack file list.
+
+SYNTAX:               [P]LOT[S]TACK [ options ]
+                      where options are one or more of the following:
+                           [S]UM ON | OFF
+                           [P]ERPLOT ON | OFF | n
+                           [W]EIGHT ON | OFF
+                           [P]OLARITY ON | OFF
+
+INPUT:
+       SUM ON | OFF    When this option is on the summed file is 
+		       plotted first followed by the files in the stack 
+		       file list.  When this option is off, the summed 
+		       file is not plotted.
+   PERPLOT ON | OFF    Turn the per plot option on or off.  When this 
+		       option is on, a fixed number of files are plotted 
+		       in each frame.  When this option is off, all of 
+		       the files in the stack file list are plotted in 
+		       a single frame.
+          PERPLOT n    Turn the per plot option on  and set the number 
+		       of files per frame to n.
+    WEIGHT ON | OFF    Turn the file weighting option on or off.
+  POLARITY ON | OFF    Turn the file polarity option on or off.
+
+DEFAULTS VALUES: PLOTSTACK SUM ON PERPLOT OFF WEIGHT ON POLARITY ON
+
+TYPE:  Action-producing
+
+DESCRIPTION
+This command plots the files in the stack file list.
+The files are always plotted with their delays.
+They may be plotted with or without their weighting factors and polarities.
+They may also be plotted with or without the summed signal.
+A selectable number of the files can be plotted on each frame.
+The format of the plot is identical to that of the PLOT1 command.
+Each file is plotted in its own subplot region.
+These subplot regions have a common x axis and separte y axes.
+A legend consisting of the file name and any non-default properties is
+placed in the upper left-hand corner of each subplot region.
+The stack time window (see  TIMEWINDOW) must be defined before 
+executing this command.
+
+EXAMPLES
+The following commands produced the plot shown on the next page.
+$add commands here$
+
+ERRORS MESSAGES: 5103: No time window defined.
+
+SEE COMMANDS: TIMEWINDOW
+
+QUITSUB
+
+SUMMARY:   Terminates the Signal Stacking Subprocess.
+
+SYNTAX:    [Q]uit[S]UB
+
+TYPE:      Action-producing
+
+DESCRIPTION
+Terminates the Signal Stacking Subprocess and returns to the main
+SAC program.  Use the QUIT command to terminate SAC.
+This command also deletes the current stack summation from memory.
+Use the WRITESUM command to save this summation on disk prior to
+executing this command if you want it saved.
+Stack file list properties and global properties values are retain
+their values if you use this command to return to the main program
+and then later reenter the Signal Stacking Subprocess within the
+same SAC session.
+
+SUMSTACK
+
+SUMMARY:                   Sums the files in the stack file list.
+
+SYNTAX:                    [S]UM[S]STACK  [[N]ORMALIZATION ON|OFF]
+
+INPUT  
+   NORMALIZATION ON | OFF  Turn normalization option on or off.
+			   When this option is on the resulting 
+			   summation is normalized by dividing each 
+			   point by a factor that is the sum of 
+			   each file's weight.
+
+DEFAULTS VALUES:           SUMSTACK NORMALIZATION ON
+
+TYPE:                      Action-producing
+
+DESCRIPTION
+This command sums the files in the stack file list.
+A stack time window (see  TIMEWINDOW) must have been defined before
+this command is executed.  
+Each signal is shifted in accordance with its static and dynamic delays.
+Zeros are added to the sum for that part of each file that is 
+not in the time window.
+Each file is given the requested weighting and files with reversed polarity
+are inverted.
+A plot of the summation is automatically produced.
+The summation can be saved on disk using the WRITESUM command.
+
+ERRORS MESSAGES: 5103: No time window defined.
+
+SEE COMMANDS: TIMEWINDOW, WRITESUM 
+
+TIMEAXIS
+
+SUMMARY:          Controls the time axis properties on 
+		  subsequent record section plots.
+
+SYNTAX:           [T]IME[A]XIX [F]IXED v|[S]CALED v
+
+INPUT:
+    FIXED v       Fix the length of the time axis in cm to v.
+   SCALED v       Scale the length of the time axis in cm to be
+		  v times the total time window.
+
+DEFAULTS VALUES:  TIMEAXIS FIXED 23.0
+
+TYPE:             Parameter-setting
+
+EXAMPLES:
+If you are making several record setion plots with different time
+windows and you wnat each 2 seconds on these plots to be 1 cm long:
+
+	u:  TIMEAXIS SCALED 0.5
+
+
+KNOWN BUGS:
+The y and x aspect ration defined byh this command and byh the
+ DISTANCEAXIS command is correct onplots to any device.  The physical
+size requested is ignored when plotting to an interactive device
+(e.g. TERMINAL, XWINDOWS)  If the SGF device is requested, the
+physical size is stored in these files.  The current SGF plot programs do
+not have the capability ot make arbitrary sized plots (i.e. panelling).
+This panelling option is planned for a future release.
+
+SEE COMMANDS: PLOTRECORDSECTION, DISTANCEAXIS
+
+
+TIMEWINDOW
+
+SUMMARY:         Sets the time window limits for subsequent stack summations.
+
+SYNTAX:          [T]IME[W]INDOW v1 v2
+
+INPUT
+    v1 v2        The time window limits to use when reading in files 
+	         before doing a stack summation.
+
+DEFAULT VALUES:  None.  You MUST specify a time window before 
+		 doing a summation (see  <A HREF=#sumstack>SUMSTACK</A>.)
+
+DESCRIPTION
+This command sets the stack time window.
+This is the time window that will be used in subsequent  SUMSTACK
+ PLOTSTACK, and  PLOTRECORDSECTION commands.
+The stack time window must be defined before any of these commands are executed.
+If a particular file does not fall entirely within this stack time window
+enough zeros are added before or after the actual data to make up the difference.
+
+SEE COMMANDS: SUMSTACK, PLOTSTACK, PLOTRECORDSECTION
+
+
+VELOCITYMODEL
+
+SUMMARY:        Sets stack velocity model parameters for computing dynamic delays.
+
+SYNTAX:         [V]ELOCITY[M]ODEL n options
+                where options are one or more of the following:
+                    ON|OFF
+                    REFRACTEDWAVE|NORMALMOVEOUT
+                    FLIP
+                    VAPP v|CALCULATE
+                    T0VM v|CALCULATE
+                    DVM v1 [v2]
+                    TVM v1 [v2]
+                    VAPPI v
+                    T0VMI v 
+                    
+INPUT:
+            n   Set velocity model number.  This is either "1" or "2".
+		The use of each velocity model is described below.
+       ON|OFF   Turn velocity model option on or off.  When this 
+		option is on the model is applied. When off it is ignored.
+REFRACTEDWAVE   Turn velocity model option on and change to the "refracted wave" model.
+NORMALMOVEOUT   Turn velocity model option on and change to the "normal moveout" model.
+         FLIP   Interchange the properties of the two velocity models.
+       VAPP v   Set the apparent velocity to v.
+VAPP CALCULATE  Have SAC calculate the apparent velocity.
+        T0VM v  Set the time axis intercept to v.
+T0VM CALCULATE  Have SAC calculate the time axis intercept.
+   DVM v1 [v2]  Define one or two reference distances.
+   TVM v1 [v2]  Define one or two reference times.
+       VAPPI v  Set the apparent velocity increment to v.  The apparent 
+		velocity is incremented by this ammount each time the
+                INCREMENTSTACK command is executed.
+       T0VMI v  Set the time axis intercept increment to v.  The time 
+		axis intercept is incremented by this ammount each time the
+                INCREMENTSTACK command is executed.
+
+DEFAULT VALUES: VELOCITYMODEL 1 OFF
+                VELOCITYMODEL 2 OFF
+
+TYPE: Parameter-setting
+
+DESCRIPTION:
+The first velocity model is used in calculating dynamic station delays
+for a particular phase.
+It is applied when doing a stack summation ( SUMSTACK), 
+a stack plot ( PLOTSTACK), or a record section plot ( PLOTRECORDSECTION.) 
+The second velocity model is used in the record section plot to 
+show delays associated with a second phase.
+The parameters associated with the two velocity models can be easily flipped.
+<P>
+There are two different types of velocity models ("refracted wave" and
+"normal moveout") that can be applied.
+They are defined by the following equations:
+
+          TDELAY = TVM(1) - ( T0VM + DIST / VAPP )
+          TDELAY = TVM(1) - SQRT ( T0VM**2 + ( DIST / VAPP )**2 )
+
+There are several ways in which these velocity model delays can be calculated:
+
+   Enter values for VAPP, T0VM, and TVM(1) directly.
+
+   Enter values for DVM(1), TVM(1), and either VAPP or T0VM.
+   SAC will calculate the missing variable such that TDELAY will be zero
+   at the distance given by DVM(1).
+
+   Enter values for DVM(1), TVM(1), DVM(2), and TVM(2).
+   SAC will calculate both VAPP and T0VM such that TDELAY will be zero
+   at the distance given by DVM(1).
+
+EXAMPLES:
+To set the first stack velocity model the refracted wave model with an
+apparent velocity of 6.5 km/sec and to have SAC calculate T0VM such that the
+delay at 200 km will be zero:
+
+    u: VELOCITYMODEL 1 REFRACTEDWAVE VAPP 6.5 T0VM CALCULATE DVM 200 TVM 35
+
+SEE COMMANDS: SUMSTACK, PLOTSTACK, PLOTRECORDSECTION
+
+
+VELOCITYROSET
+
+SUMMARY:                 Controls the placement of a velocity roset 
+			 on subsequent record section plots.
+
+SYNTAX:                  [V]ELOCITY[R]OSET [ON|OFF]  [[L]OCATION UL|UR|LL|LR]
+
+INPUT:
+              ON | OFF   Turn velocity roset plotting option on or off.
+
+  LOCATION UL|UR|LL|LR   Change location on plot of velocity roset.
+                         Locations are respectively upper left, 
+			 upper right, lower left, and lower right
+                         of the record section plot.
+
+DEFAULTS: VELOCITYROSET OFF LOCATION LL
+
+TYPE: Parmeter-setting
+
+
+WRITESTACK
+
+SUMMARY:        Writes the stack summation to disk.
+
+SYNTAX:         [W]RITE[S]TACK [filename]
+
+INPUT:   
+   filename     The name of the disk file into which the 
+		summation is to be written.
+
+DEFAULT VALUES: WRITESTACK SUM
+
+TYPE:           Action-producing
+
+
+ZEROSTACK
+
+SUMMARY: Zeros or reinitializes the signal stack.
+
+SYNTAX: [Z]ERO[S]TACK
+
+DESCRIPTION
+This command zeros the signal stack.
+It deletes all entries in the stack file list
+and sets the global stack properties back to their original values.

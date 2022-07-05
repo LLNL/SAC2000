@@ -1,0 +1,275 @@
+SAC2000 User's Manual
+
+
+Analysis Capabilities
+
+
+Overview
+SAC2000 is logically divided into functional modules.
+Each functional module performs a related set of tasks.
+This section briefly describes the commands in each of these modules.
+The full command names are used in these descriptions.
+Most of the commands have convenient abbreviations.
+See the Command Reference Manual for details.
+
+
+Executive Function Module
+Once you have succesfully started SAC2000, you need to know how to get
+rid of it!  This is done with the  QUIT command.   END,  EXIT, and  DONE
+are also allowed so you shouldn't have any problems.
+ FUNCGEN lets you generate various functions in memory.
+It is useful for testing the other commands on known functions.
+ DATAGEN lets you read sample data from three events (one local,
+one regional, and one teleseismic) into memory.
+This lets you play with some real seismic data while you are getting
+your own data converted to the SAC data file format.
+There are several commands that give you information about SAC2000:   NEWS
+prints out general information about the latest version of SAC2000,
+ HELP and  SYNTAX give you information about a specific command,
+and  REPORT gives you the current values of important parameters.
+SAC2000 has an extensive macro capability that is described in a later section.
+It lets you execute  a set of SAC commands by putting them in a file.
+You can define arguments complete with default values, perform simple
+arithmetic calculations, store and retrieve information, and control the
+flow of command execution with if-tests and do-loops.
+ MACRO executes a macro file.
+ SETMACRO defines the search path to be used to find a macro file.
+ INSTALLMACRO lets you make a macro available for use by anyone
+else on your system.
+You can store ( SETBB), remove ( UNSETBB), and retrieve ( GETBB) information
+and do arithmetic calculations ( EVALUATE) using the ``blackboard.''
+You can also save ( WRITEBBF) and restore ( READBBF) information in the
+blackboard into a disk file.
+Other commands that are useful in a macro include the ability to send a
+message to the terminal ( MESSAGE), echo commands to the terminal ( ECHO),
+and temporarily suspend the execution of a macro ( PAUSE).
+You can write your own SAC command in FORTRAN or C routines that can be loaded
+into SAC2000 ( LOAD), and executed thereafter just like an indiginous SAC
+command (see Notes and external_interface in misc/external).
+ TRACE can be used to have SAC2000 trace header and blackboard variables, 
+reporting to the screen when a variable changes values.
+ TRANSCRIPT controls SAC2000's transcription capabilities, saving commands, 
+and/or error messages, and/or warnings, and/or other output to a text file.
+ COMCOR provides command correction.  When SAC2000 detects an error during the
+course of executing a command, if this option is set, SAC2000 will allow 
+the user to correct the command and continue execution.
+ CD changes SAC2000's current working directory.
+Finally you can execute operating system commands while running SAC2000
+( SYSTEMCOMMAND) and reinitialize SAC2000 to its default state ( INICM).
+
+
+Condition Execution Module
+This module provide commands which contol the flow of commands.
+These commands can only be called from within a macro, and are discussed
+in greater detail in the section on SAC macros.  The commands in this
+module are IF, ELSEIF, ELSE, ENDIF, DO, WHILE, ENDDO, and BREAK.
+
+
+Data File Module
+This module is used to read, write, and access SAC data files.
+These data files are described in detail in a later section.
+ READ reads data files from disk into memory and  WRITE writes the
+data currently in memory to disk.
+ CUT defines how much of a data file is to be read.
+ READERR controls errors that occur while files are being read and
+ CUTERR controls errors due to bad cut parameters.
+Each data file has a header which describes the contents of the file.
+You can read and write these headers without the data using  READHDR
+and  WRITEHDR.
+You can also list the contents ( LISTHDR), change values ( CHNHDR),
+and copy header values from one file to the others in memory ( COPYHDR).
+The  SYNCHRONIZE command changes the headers in memory so that they
+all have the same reference time.
+You must first use this command before using the  CUT command on files
+with different reference times.
+You can use  READALPHA to read almost any alphanumeric data file
+directly into SAC2000.
+The read commands let you use wildcard characters to easily read in groups
+of files that contain the same pattern of characters.
+The  WILD command controls certain aspects of this wildcard filename expansion.
+The SAC data file is stored in binary format for fast reading and writing.
+There is also an alphanumeric equivalent of this binary format.
+This is useful when transfering SAC data files from one kind of computer
+to another kind.
+ CONVERT can be used to convert between the binary and alphanumeric formats.
+ READCSS reads CSS 3.0 formatted flat files.  Preferences for the way picks
+are read in are set in a preferences file but can be modified using the
+PICKAUTHOR and PICKPHASE command.  WRITECSS writes the data to flat files.
+WRITECSS is currently not working as comprehensively as READCSS.
+ DELETECHANNEL allows you to delete one or more files from memory.
+ READSDD and  WRITESDD allow reading and writing of SDD data files.
+
+
+Spectral Analysis Module
+You can do a discrete Fourier transform ( FFT) and
+an inverse transform ( IFFT).
+You can also compute the amplitude and unwrapped phase of a signal ( UNWRAP).
+This is an implementation of the algorithm due to Tribolet.
+There is a set of Infinite Impulse Response filters ( BANDPASS,  BANDREJ,
+ LOWPASS, and  HIGHPASS), a Finite Impulse Response filter ( FIR),
+an adaptive Wiener filter ( WIENER), and two specialized filters
+( BENIOFF and  KHRONHITE) used at LLNL.
+ CORRELATE computes the auto- and cross-correlation functions.
+ CONVOLVE computes the auto- and cross-convolution functions.
+The  FFT and  UNWRAP commands produce spectral data in memory.
+You can plot this spectral data ( PLOTSP),
+write it to disk as ``normal'' data ( WRITESP),
+and read in back in again ( READSP).
+You can also perform integration ( DIVOMEGA) and differentiation ( MULOMEGA)
+directly in the frequency domain.
+ HANNING applies a "hanning" window to each data file.
+ HILBERT applies a Hilbert transform.
+ ENVELOPE computes the envelope function using a Hilbert transform.
+ KEEPAM keeps amplitude component of spectral files (of either the AMPH or RLIM
+format) in SAC memory.
+
+
+Unary Operations Module
+The commands in this module perform some arithmetic operation on each data
+point of the signals in memory.
+You can add a constant ( ADD), subtract a constant ( SUB), multiply by a
+constant ( MUL), or divide by a constant ( DIV).
+You can square each data point ( SQR), take the square root ( SQRT),
+or take the absolute value ( ABS).
+You can take the natural ( LOG) or
+base 10 ( LOG10) logarithm of each data point.
+You can also compute the exponential ( EXP) or
+base 10 exponential ( EXP10) of each data point.
+Lastly you can perform integratation ( INT) and differentation ( DIF).
+
+
+Binary Operations Module
+These commands perform operations on pairs of data files.
+ MERGE merges (concantenates) a set of files to the data in memory.
+ ADDF adds a set of data files to the data in memory.
+ SUBF subtracts a set of data files from the ones in memory.
+ MULF multiplies a set of data files by the data in memory.
+ DIVF divides the data in memory by a set of files.
+ BINOPERR controls errors that can occur during these binary operations.
+
+
+Signal Correction Module
+These commands let you perform certain signal correction operations.
+ RQ removes the seismic Q factor from spectral data.
+ RTREND and  RMEAN remove the linear trend and the mean from data respectively.
+ RGLITCHES removes glitches and timing marks.
+ TAPER applies a symmetric taper to each end of the data and  SMOOTH
+applies an arithmetic smoothing algorithm.
+ STRETCH upsamples data, including an optional interpolating FIR filter, while
+ DECIMATE downsamples data, including an optional anti-aliasing FIR filter.
+You can interpolate evenly or unevenly spaced data to a new sampling interval
+using the  INTERPOLATE command.
+ LINEFIT computes the best straight line fit to the data in memory and writes
+the results to header blackboard variables.
+ QUANTIZE converts continuous data into its quantized equivalent.
+ REVERSE reverses the order of data points.
+Finally, you can rotate pairs of data components through a specified angle
+with the  ROTATE command.
+
+
+Event Analysis Module
+This module is used to pick seismic phases.
+An automatic phase picking algorithm can be applied using  APK.
+You can also use  PPK to pick phases using the graphics cursor.
+( PPK is described in the section on Graphics Capabilities).
+These picks can be saved in HYPO format using the  OHPF (open HYPO pick file)
+and CHPF (close HYPO pick file) commands;  WHPF writes auxiliary cards
+into the HYPO pick file.
+These picks can also be saved in a more general Alphanumeric format using the
+ OAPF (open alphanumeric pick file) and  CAPF (close alphanumeric pick file)
+commands.
+The picks are also saved in the headers.
+
+
+Signal Measurement Module
+These commands measure and ``mark'' selected attributes about the data in
+memory.  These marks are stored in the headers.
+ MARKTIMES marks the data in memory with travel times from a velocity set.
+ MARKPTP measures and marks the maximum peak to peak amplitude.
+ MARKVALUE searches for and marks selected values in a signal.
+ MTW sets the ``measurement time window'' option.
+When this option is on, the measurements are made within this window only.
+Otherwise the measurements are made on the entire signal.
+ MTW applies to the  MARKPTP and  MARKVALUE commands only.
+ RMS computes the root mean square of the data within the measurement time
+window.
+
+
+Instrument Correction Module
+This module currently contains only one command,  TRANSFER.
+ TRANSFER performs a deconvolution to remove one instrument response followed
+by a convolution to apply another instrument response.
+Over 40 predefined instrument responses are available.
+A general instrument response can also be specified in terms of its poles
+and zeros.
+
+
+Nerual Network Module
+This module has only one command, WRITENN, which writes data files to disk in
+neural net format.
+
+
+XYZ Data Processing Module
+The commands in this module produce output that is a function of two input
+domains.
+ SPECTROGRAM calculates a spectrogram using all of the data in memory.
+ GRAYSCALE produces grayscale images of data in memory.
+ CONTOUR produces contour plots of data in memory.
+ ZLEVELS controls the contour line spacing in subsequent contour plots.
+ ZLINES controls the contour linestyles in subsequent contour plots.
+ ZTICKS controls the labeling of contour lines with directional tick marks.
+ ZLABLES controls the labeling of contour lines with contour level values.
+ ZCOLORS controls the color display of contour lines.
+ IMAGE produces color sampled image plots of data in memory.
+ SONOGRAM calculates a spectrogram equal to the difference between two smoothed
+versions of the same spectrogram.
+
+
+Frequency-waveform Spectral Analysis Module
+Most of the command in this module are algorithms to extract wave field
+parameters from a suite of seismograms.
+ ARRAYMAP produces a map of the array or "coarray" using all files in
+SAC memory.
+ BBFK computes the broadband frequency-wavenumber (FK) spectral estimate,
+using all files in SAC memory.
+ BEAMFORM computes the beam using all data files in SAC memory.
+ GMTMAP generates a GMT (Generic Mapping Tools) map with station/event
+symbols using all the files in SAC memory and an event file specified on the
+command line.
+
+
+Matlab Module
+This module provides an interface between SAC2000 and MATLAB, allowing users who
+have MATLAB the ability to utilize its facilities and m-files on SAC files.
+ 3C launch a Matlab GUI for manipulating 3-component data.
+ MAT allows processing of SAC data from within SAC2000 using the MATLAB engine.
+ SETMAT allows user to specify directory to be added to MATLAB search path.
+ CLOSEMAT closes MATLAB, quits the engine.  When called from within MATLAB,
+it returns control to SAC2000.
+
+
+Subprocesses
+A subprocess is like a small program within the larger SAC2000 program.
+It works like SAC2000 in many ways but the differences are such that it
+could not be included in the main program.
+Once invoked, only the commands within that subprocess plus a selected
+group of commands from the main SAC2000 program can be executed.
+The prompt changes to include the name of the subprocess.
+When done you can return to the main SAC2000 program using the  QUITSUB command
+or terminate SAC2000 using the  QUIT command.
+
+
+Spectral Estimation Subprocess
+This subprocess is for the study of stationary random processes (i.e. noise.)
+Three spectral estimation techniques are available: the maximum entropy method,
+the maximum likelihood method, and the power density spectra method.
+
+
+Signal Stacking Subprocess
+This subprocess is for performing signal stacking with delays.
+The delays can be static or dynamic.
+Two velocity models are available.
+The signals can be individually weighted.
+Traveltimes can be computed, or read from a file.
+A record section plot is also part of this subprocess.
+

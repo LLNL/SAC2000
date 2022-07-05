@@ -1,0 +1,71 @@
+
+SAC Command Reference Manual                              INTERPOLATE
+
+SUMMARY:
+Interpolates evenly or unevenly spaced data to a new sampling rate.
+
+SYNTAX:
+INTERPOLATE {DELTA v},{EPSILON v},
+{BEGIN v|OFF},{NPTS n|OFF}
+
+INPUT:
+      DELTA v  :  Set new sampling rate to v.  
+
+      EPSILON v  :  Set interpolation convergence factor to v.  
+
+      BEGIN v  :  Start interpolation at v.  This value becomes the begin time
+          of the interpolated file.  
+
+      BEGIN OFF  :  Start interpolation at begin time of uninterpolated file.
+           
+
+      NPTS n  :  Force the number of points in interpolated file to be n.  
+
+      NPTS OFF  :  Let SAC calculate the number of points in interpolated
+          file using the begin and end times and new sampling rate.
+
+DEFAULT VALUES:
+INTERPOLATE DELTA 0.025 EPSILON 0.0001 BEGIN OFF NPTS OFF
+
+DESCRIPTION:
+This command uses the Wiggins interpolation method (see reference) to convert
+unevenly spaced data to evenly spaced data and to resample evenly spaced data
+to a different sampling rate.
+
+EXAMPLES:
+Assume that FILEA is an unevenly spaced data file.  To convert it to an evenly
+spaced file with a sampling interval of 0.01 seconds:
+ 
+      u:  READ FILEA
+ 
+      u:  INTERPOLATE DELTA 0.01
+ 
+Assume that FILEB is an evenly spaced data file with a sampling interval of
+0.025.  To convert it to a sampling rate of 0.02 seconds:
+ 
+      u:  READ FILEB
+ 
+      u:  INTERPOLATE DELTA 0.02
+ 
+Assume that you want to force the interpolated file to have a sampling rate
+of 0.005, to begin at time 18.237, and to have exactly 400 data points:
+ 
+      u:  READ FILEC
+ 
+      u:  INTERPOLATE DELTA 0.005 BEGIN 18.237 NPTS 400
+ 
+
+WARNING MESSAGES:
+2008: Requested begin time is less than files begin time. Output truncated.
+
+- Requested begin time is less than file begin time. Output truncated.
+2009: Requested end time is greater than files end time. Output truncated.
+
+- Requested end time is greater than file end time. Output truncated.  
+Wiggins, 1976, BSSA, 66, p.2077.
+
+HEADER CHANGES:
+DELTA, NPTS, E, (LEVEN if unevenly spaced.)
+
+LATEST REVISION:
+July 22, 1991 (Version 10.4c)

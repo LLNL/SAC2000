@@ -1,0 +1,343 @@
+Frequently Asked Questions
+
+
+1)  Sometimes when I run SAC2000 and try to plot some data, the graphics 
+    doesn't display.  All I get is an empty graphics window.
+
+    -- Sometimes programs like netscape take hold of the color table etc ... 
+    and don't allow SAC2000 to plot.  Turn off netscape or other applications 
+    that hog the color table.  
+    Alternatively, on many systems Netscape can be started up with the -install 
+    option; this will let SAC2000 plot, but it will also make some funny colors 
+    appear on your screen as you go in and out of Netscape.
+
+
+2)  How do I get a shell variable into SAC2000?  
+
+    -- You can create a temporary ascii file with a command like 
+    setbb variable-name variable and run it as a macro.
+
+
+3)  How can I reformat a variable with too many zero's?
+    e.g.,
+    getbb x
+      x = 2.0000000e+00
+
+    -- You can use the inline functions to select desired portions of the 
+    variable you want.  See the string manipulation functions substring, 
+    before, and after.
+
+    For example,
+    eval as f to x 2 * 1
+    getbb
+      x = 2.0000000e+00
+    setbb y (substr 1 3 %x )
+    getbb
+      x = 2.0000000e+00
+      y = 2.0
+
+
+4)  Is there a way to convert SEG-2 files (real SEG-2 files, not SEG-Y) to
+    sac data files?
+
+    -- There is a code called seg2sac.  It lives at the Passcal facility at 
+    L-DGO.
+
+
+5)  Is there any way when producing a record section to have SSS line the 
+    waveforms up on a particular phase arrival?  For example, if I use ppk  to
+    pick the first arrival on each waveform and write that to the header, can 
+    SSS line the traces up on the arrival?
+
+    -- Use the changestack command as follows:
+    changestack file# del &file#,pick_header_variable
+    For example, changestack 1 del &1,t1 would shift the first waveform by the 
+    t1 header value.
+
+
+6)  SAC2000 is supposed to run UNIX commands, but it seems to ignore aliases.
+
+    -- SAC2000 runs the korne shell when executing unix commands, not the 
+    bourne shell which we usually use.  Unfortunately, it is not aware of
+    our usual aliases.  
+
+
+7)  SAC2000 is supposed to run UNIX commands, why doesn't rm work?
+
+    -- The rm command was disabled because of concerns from some users that 
+    they might accidentally type rm * instead of r m * or some other SAC2000 
+    command.  You can use /bin/rm filenames if you like.
+
+
+8)  I get an error message "Number 4003" with no explanation.
+
+    -- Error 4003 is produced under the following conditions:
+     - SAC2000 is trying to read an integer from an ASCII text file
+       or convert a string of numeric characters to an integer.
+     AND
+     - The numeric string contains more than nine characters
+       (in other words, the resultant integer would be greater than 
+       1000000000 (1e+9) ).
+
+9) How do I get SAC2000 to read binary data?
+
+    -- The only binary files SAC2000 reads are in sac format.  If you plan to 
+    read a file frequently it might be worth converting it to ascii, 
+    reading it with readalpha and writing it out as a sac file with the 
+    write command.
+
+10) I need SAC2000 for a specific platform.  OR  I need the sac.a library
+    for a specific platform.  
+
+    -- We are happy to make SAC2000 and/or the sac.a library available to
+    out collaborators.  If you are not a collaborator, and would like to be
+    one, please print out the collaborative agreement form from our web site 
+    http://ww-ep.es.llnl.gov/tvp/sac.html , sign it, and fax it to Peter
+    Goldstein at (925) 423-4077.
+    
+    The latest versions of SAC2000 are available for Solaris, SunOS, SGI, and 
+    Linux.  A Alpha version may be available someday.  
+
+    Fortran libraries are available for Solaris, SunOS, and AIX.  A C library
+    is available for Solaris, SunOS, SGI, and Linux.  
+
+11) How do I read an ascii file into SAC2000?
+
+    - If you have an asci file in column format 
+
+    e.g., a file called "myfile"
+
+    1.0 3.0 
+    2.0 6.0
+    3.0 9.0
+    ...
+    10.0 30.0 
+
+    you could use the readalpha command in sac as follows: 
+
+    ra content xy myfile
+
+    - If you have a file in the sac alphanumeric format you 
+    would use convert to comvert to sac binary format 
+
+    e.g., convert from alpha myfile 
+
+12) After using the cut command to change the lengths of waveforms, how do 
+    I get them to begin at a specific time?
+
+    - You can use the changehdr (ch) command.  Here are two examples:
+
+    ch b 0
+    ch allt 0
+
+13) Why don't my flow control statements work in my c-shell?  
+
+    - Flow control in sac was only designed to work in macros.  
+    When you use flow control interactively or in a script, 
+    SAC may not be able to find the end of the flow control 
+    loop when its done processing statements in that loop.  
+
+    For example, if you use an if statement interactively, 
+    and the test is false, SAC will not know where to go 
+    because there is no endif statement yet.  With a macro, 
+    it knows to keep looking through the macro file.  
+  
+14) My Linux version of SAC2000 cannot read sac files written by the UNIX 
+    version.
+
+    - There is a special option in read and write called xdr. 
+    It allows you to transfer unix files to linux.  
+    Try the following: 
+
+    a) read the data of interest on a machine on 
+    a unix platform and write it to a new file 
+    such as file.xdr.  
+    b) copy this new file to the/ linux machine 
+    and read with the xdr option.  
+
+    e.g., 
+    On unix 
+    sac> read file
+    sac> write xdr file.xdr
+
+    on linux 
+    sac> read xdr file.xdr 
+    sac>write file
+
+15) I cannot compile the independent programs contained in the utils and 
+    demo directories.
+
+    - The main utility program you should need is 
+    sgftops. This should compile with any c compiler.
+
+    - The routines written in FORTRAN are more challenging.  One option is
+    to download the FORTRAN library and link to that.  Otherwize the fix
+    is platform dependent.  Some FORTRAN compilers require calls to fucntions
+    in C libraries to append an underscore (_) to the function name, and others
+    don't.  SunOs and Solaris both require the underscore.  For this reason
+    our FORTRAN utilities include the underscore.  SGI and Linux do not require
+    the underscore, and for that reason, our FORTRAN utilities don't compile
+    on those platforms yet.  We intend to write a wrapper, someday, that will
+    make these utilities portable.  We don't know when it will happen.  
+
+16) There is no sac/lib/ directory when unpacking the sac2000.linux.tar 
+    file.
+
+    - The sac.a library has recently been made available at our ftp site
+      for those who have printed out a copy of out collaborative agreement
+      (available on the web at http://ww-ep.es.llnl.gov/tvp/sac.html), signed
+      it, and faxed it to Peter Goldstein at (925) 423-4077.
+
+17) When I convert alphanumeric files produced on a VMS system
+    through the command CONVERT, in binary SAC files on a SUN Solaris 3.5
+    system, for some data files the program puts up the message
+    WARNING: number 4003
+    I haven't found in the manual any description of this warning 
+    message, could you help me ?
+
+    - You should be able to 
+    1) use convert on the vax to generate an alphanumeric sac file
+    2) copy this alphanumeric file to your sun
+    3) use convert to read the alphanumeric file on your sun.
+
+    The 4003 warning message indicates that SAC2000 tried to read a very 
+    large integer ( > 1000000000 ) from ascii, and failed.  You may use
+    a text editor to reduce the size of large integers if you feel you can
+    do this in a way that perserves your data.  
+
+18) In ppk, when I type 'l' it gives the response to three sig figs.  Is 
+    there a way to get more sig figs/
+
+    - If you make a pick (even just a temporary one) and then use the 
+    listhdr command it will give more sig figs, but the time will be 
+    relative to kzdate and kztime.
+
+19) The ppk beeps all the time and is driving me nuts.  Is there some way to
+    turn off the bell?
+
+    - Yes, there is now a BELL OFF option on the ppk command.
+
+20) I can't write files to a remote disk on a Solaris machine.
+
+    - We have found that this is a nfs problem and it is fixable with 
+    patches.
+
+    Solaris 2.5
+    Patch-ID# 103477-07
+    Keywords: rpcmod tlimod nfs lock client csh freemem client server stale
+    Synopsis: SunOS 5.5: rpcmod, tlimod and nfs patch
+    Date: Feb/05/97
+    No reboot is necessary
+
+
+    Solaris 2.5.1
+    Patch-ID# 103600-13
+    Keywords: nfs nocto fsync RPC tlimod rpcmod NFS lock clnt_cots 
+    CLNT_CALL NLM
+    Synopsis: SunOS 5.5.1: nfs, tlimod and rpcmod patch
+    Date: Apr/28/97
+
+    Topic: SunOS 5.5.1: nfs, tlimod and rpcmod patch
+
+        NOTE:   TO GET THE COMPLETE FIX FOR 4032974, ONE NEEDS TO INSTALL
+                THE FOLLOWING PATCHES:
+                103640-08 (or higher)   Kernel Patch
+                103934-04 (or higher)   kernel/drv/isp patch
+                104735-01 (or higher)   platform/sun4m/kernel/drv/sx patch
+                                        (for sun4m machines only)
+                104736-01 (or higher)   usr/bin/csh patch
+      ***  FAILURE TO INSTALL ALL THESE PATCHES WILL  ***
+      ***  CAUSE THE SYSTEMTO HANG AFTER 248 DAYS.    ***
+
+    103640-08 requires rebooting. The others do not.
+
+
+21) SAC won't start up properly for me.  
+    I get a message that says something like:
+    "Problems opening Command List: /usr/stuff/sac/misc/clstd"
+
+    - You may need to set an environmental variable called SACAUX.  Do this
+    with the setenv command.  Set it to the absolute path name of the aux 
+    directory that came with sac.
+
+
+22) The sac.a library is not linking.  There are a number of undefined
+    symbols, most of which start with 'X'.  
+
+    - The new sac library requires the -lX11 flag to appear in the link/
+    compile line. 
+
+
+23) The EVALUATE (or EVAL) command produces floating point values.  Is
+    there a way for it to produce integer values?
+
+    - Yes, use the AS option, eg.:
+    eval as i to inumber ( 4 * 5 )
+
+
+24) I have some extra integer information I'd like to store in the header.  
+    Could I store it in the NXSIZE or NYSIZE header variables?  They don't
+    seem to get used much.
+
+    - Maybe,  NXSIZE and NYSIZE are used for spectral data, xyz data, and bbfk.
+    I you will be using contouring, bbfk, xyz, or spectral functionallity of
+    any sort, you should avoid using NXSIZE and NYSIZE.  However, if you know 
+    that you won't be using any of this functionallity, you can use the command
+    ch nxsize "integer_value"
+    from within SAC, or
+    setnhv('NXSIZE',nx,nerr)
+    from your own program, where nx is the value you want to write to nxsize
+
+    Do it at your own risk.
+
+
+25) When I use wsac1() to over-write a SAC file, I get a segmentation fault.
+
+    - If your code has the file name hardwired into the wsac1 call, try 
+    changing it.  
+        Instead of:
+           wsac1('myfile.xyz', ... )
+        try writing:
+           fn = 'myfile.xyz' 
+           wsac1(fn , ... )
+
+26) I'm having problems linking with the sacio.a library.  What could cause 
+    these difficulties?
+
+    - If your object files (*.o) are out of date it could cause the problem.
+    It may help to rebuild your whole program from the ground up.
+
+    - In some cases, the sacio.a library requires linking to the math library.
+    Try adding "-lm" to the link line if it is not already there.
+
+
+27) Does the FFT in SAC depend on the length of the data window or the
+    sample interval?
+
+    - No, The fast fourier transform in SAC appoximates the continuous 
+    time fourier transform.  As such, spectral amplitudes estimated with 
+    SAC are independent of the length of the data window or the sampling 
+    interval.  In other words, two unequal length windows that contain the 
+    same signal will have the same fourier spectral amplitudes.  However, 
+    the sample interval of the spectra are inversly proportional to the 
+    length of the time series transformed.
+
+
+28) Why is it that picks sometimes appear and/or disappear in my files, 
+    seemingly without cause?
+
+    - Data loaded into SAC is stored in parallel in two different data buffers.
+    There is a SAC formatted data structure, and a CSS formated data structure.
+    During processing, the data is transfered between the buffers without the
+    user's knowledge.  Because the CSS arrival structure dynamically grows and
+    shrinks as needed, and the SAC time markers T0 through T9 (aka Tn) do not,
+    a conflict arrises when more than 10 picks are present in the CSS data 
+    buffer.  This was initially solve by putting in place a preferences file
+    to direct the flow of arrivals from the CSS buffer to the SAC buffer.  The
+    preferences file is highly structured and sometimes missed important picks
+    which did not fit into the structure.  This was addressed in version 0.59
+    by allowing the user greater flexibility with the behavior of arrivals.  
+    This added flexibility, when used without complete understanding, can make
+    picks appear and disappear.  To understand how the picks are transfered 
+    from the CSS data buffer to the SAC data buffer, use HELP PICKPREFS,
+    HELP READCSS, HELP PICKAUTHOR, and HELP PICKPHASE.

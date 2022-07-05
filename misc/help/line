@@ -1,0 +1,79 @@
+
+SAC Command Reference Manual                                     LINE
+
+SUMMARY:
+Controls the linestyle selection in plots.
+
+SYNTAX:
+LINE {ON|OFF|SOLID|DOTTED|n}
+{INCREMENT {ON|OFF}},{LIST STANDARD|nlist}
+
+INPUT:
+      {ON}  :  Turn line drawing on.  Don't change linestyle.  
+
+      OFF  :  Turn line drawing off.  
+
+      SOLID  :  Change to solid linestyle and turn line drawing on.  
+
+      DOTTED  :  Change to dotted linestyle and turn line drawing on.  
+
+      n  :  Change to linestyle n and turn line drawing on.  A linestyle of 0
+          is the same as turning turning line drawing off.  The number of
+          linestyles varies from one graphics device to another.  
+
+      INCREMENT {ON}  :  Increment linestyle from linestyle list after each
+          data file is plotted.  
+
+      INCREMENT OFF  :  Do not increment data linestyle.  
+
+      LIST nlist  :  Change the content of the linestyle list.  Enter list of
+          linestyle numbers.  
+
+      LIST STANDARD  :  Change to the standard linestyle list.
+
+DEFAULT VALUES:
+LINE SOLID INCREMENT OFF LIST STANDARD
+
+DESCRIPTION:
+      This command controls the linestyle used when plotting data.  The
+skeleton (axes, titles, etc.) are always plotted using solid lines.  Grid
+linestyle is controlled by the GRID command.
+      Not all graphics devices have more than the solid linestyle.  This
+command obviously has no effect on those devices.  Also linestyle n may not be
+the same from device to device.
+      There are other commands that control other aspects of the data display.
+The SYMBOL command can be used to display a set of scalable, centered symbols
+at each data point.  The COLOR command controls color selection for color
+graphics devices.  All of these attributes are independent of each other.  You
+may select a blue dotted line with a symbol at each data point if you desire
+      A linestyle of 0 is the same as turning turning line drawing off.  This
+is useful in the LIST option and the SYMBOL command to display some data with
+lines and some with symbols on the same plot.  See the example below.
+
+EXAMPLES:
+To select an incrementing linestyle starting with linestyle 1:
+ 
+      u:  LINE 1 INCREMENT
+ 
+To change the linestyle list to contain linestyles 3, 5, and 1:
+ 
+      u:  LINE LIST 3 5 1
+ 
+To plot three files on the same plot using PLOT2 with the first file plotted
+using a solid line and no symbol, the second with no line and a triangle
+symbol, and the third with no line and a cross symbol:
+ 
+      u:  READ FILE1 FILE2 FILE3
+ 
+      u:  LINE LIST 1 0 0 INCREMENT
+ 
+      u:  SYMBOL LIST 0 3 7 INCREMENT
+ 
+      u:  PLOT2
+ 
+
+SEE COMMANDS:
+SYMBOL, COLOR
+
+LATEST REVISION:
+October 11, 1984 (Version 9.1)

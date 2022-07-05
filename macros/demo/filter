@@ -1,0 +1,51 @@
+echo off
+message ''
+message 'This example applies a bank of FIR filters to a signal and'
+message 'then plots the result using one of the SAC canned plot formats.'
+message 'It creates a series of temporary scratch files in the process.'
+message ''
+gtext software font 1
+echo on
+read $1$elk_z
+chnhdr kevnm broadband
+write $1$temp0
+lowpass npoles 3 corner .177 passes 2
+decimate 6
+chnhdr kevnm 'Band: .000 .177'
+write $1$temp1
+read $1$temp0
+bandpass npoles 3 corner .177 .354 passes 2
+decimate 4
+chnhdr kevnm 'Band: .177 .354'
+write $1$temp2
+read $1$temp0
+bandpass corner .354 .707
+decimate 2
+chnhdr kevnm 'Band: .354 .707'
+write $1$temp3
+read $1$temp0
+bandpass corner .707 1.41
+chnhdr kevnm 'Band: .707 1.41'
+write $1$temp4
+read $1$temp0
+bandpass corner 1.41 2.83
+chnhdr kevnm 'Band: 1.41 2.83'
+write $1$temp5
+read $1$temp0 $1$temp1 $1$temp2 $1$temp3 $1$temp4 $1$temp5
+xlabel 'Time [seconds]'
+title size medium 'Bandpass Partitioned Signals'
+ylim all
+qdp off
+xlim 50 200
+fileid on type list kevnm
+bw 4
+plot1
+pause
+echo off
+title off
+xlabel off
+xlim off
+ylim off
+fileid type default
+qdp on
+echo on

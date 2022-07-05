@@ -1,0 +1,29 @@
+echo off
+message ' '
+message 'Each SAC data file contains the data from a single seismic'
+message 'component along with header information describing that data.'
+message 'SAC can process up to 100 data files at a time.'
+message 'The READ command reads data from disk, the CUT command can'
+message 'be used to specify what part of the data to read, and the'
+message 'PLOT command graphically displays the data currently read in.'
+message ' '
+echo on
+pause
+read $1$cdv_z
+title 'A sample seismogram from a local event'
+plot
+listhdr columns 2
+pause
+cut a f
+read $1$cdv_z
+title 'Same seismogram windowed around the event'
+plot
+listhdr
+pause
+cut a -0.2 2.0
+read $1$cdv_z
+title 'Same seismogram windowed around the arrival time'
+plot
+listhdr
+pause
+cut off

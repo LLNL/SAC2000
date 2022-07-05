@@ -1,0 +1,19 @@
+typedef struct {
+  float re;
+  float im;
+} complexf;    
+float C_warp();
+double cmplxang();
+double cmplxabs();
+complexf cmplxadd();
+complexf cmplxdiv();
+complexf cmplxexp();
+complexf cmplxlog();
+complexf cmplxmul();
+complexf cmplxneg();
+complexf cmplxpow();
+complexf cmplxsqrt();
+complexf cmplxsub();
+double cmplxtof();
+complexf cmplxcj();
+complexf flttocmplx();          

@@ -1,0 +1,61 @@
+
+This directory contains sample data and two sets of macros.
+The first set interactively demonstrates some of SAC's features.
+The second set automatically tests many of SAC's features.
+
+To use these macros:
+
+(1) The data is stored in the "data" subdirectory.  Because of different
+binary data representations on different computers, only alphanumeric
+copies of the data files are distributed.  To run the demo or test
+macros, you must first convert these alphanumeric data files to binary
+data files on your system. Move into the "data" subdirectory, start up
+SAC, and run the "tosac" macro. It has no arguments.
+
+(2) The demo macros are stored in the "demo" subdirectory.
+Once step (1) above has been completed, to run this demo package
+move to the "demo" subdirectory, start up SAC, and run the
+"demo" macro.  It has four optional arguments:
+  (1) Output graphics device. Default is sunwindows.
+  (2) Number of times to execute macro. Default is 1.
+  (3) Mode. Either "interactive" in which demo pauses at appropriate
+      spots and waits for user to hit a <return> before continuing or
+      "automatic" in which demo pauses for 10 seconds at each spot
+      but then automatically continues.
+  (4) Name of the subdirectory where the demo data is stored.
+      Default is the "data" subdirectory.
+This macro runs other macros in the "demos" subdirectory which 
+demonstrate specific aspects of SAC. The currently available demo 
+macros that "demo" uses are:
+  (1) "read" demos aspects of the SAC data file format and i/o.
+  (2) "plot" demos the various SAC plot formats and layout control.
+  (3) "filter" demos a filter bank and some more graphics.
+
+(3) The test macros are stored in the "test" subdirectory.
+Once step (1) above has been completed, to run this test package
+move to the "test" subdirectory, start up SAC, and run the
+"test" macro.  It has three optional arguments:
+  (1) Output graphics device. Default is the SAC graphics file.
+  (2) Name of the subdirectory in which to store the results. 
+      The default is the "results" subdirectory. 
+  (3) Name of the subdirectory where the test data is stored.
+      Default is the "data" subdirectory. 
+This macro runs other macros in the "test" subdirectory which 
+test specific aspects of SAC. The currently available test macros 
+that "test" uses are:
+  (1) "executive" tests the commands in the executive module.
+  (2) "datafile" tests the commands in the data file module.
+  (3) "graphics" tests the commands in the graphics environment
+      and graphics action modules.
+
+(4) Results of running "test" with a stable version of SAC on the 
+development computer environment (Sun Sparcstation; SunOS 4.0.3)
+are stored in the "baseline" subdirectory. Results from a test
+on a different version of SAC, a different version of the operating
+system, or a different computer architecture should be compared to
+the results in this "baseline" subdirectory.
+
+(5) One can learn a lot about how SAC and SAC macros work by examining 
+what these various macros do and how they do it.
+
+                                                           7/5/90
